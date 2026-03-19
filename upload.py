@@ -3,7 +3,7 @@ from huggingface_hub import HfApi
 
 api = HfApi(token=os.getenv("HUGGINGFACE_TOKEN"))
 
-DATASET_VERSION = "0.0.1"
+DATASET_VERSION = "0.1.0"
 
 api.create_repo(
     repo_id="jeesoo9595/heavyedge-dataset",
