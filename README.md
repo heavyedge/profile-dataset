@@ -20,7 +20,27 @@ make
 
 ## Upload to HuggingFace
 
+Make sure that the dataset version in `upload.py` is updated.
+
 ```
 pip install huggingface_hub
 python3 upload.py
 ```
+
+## Versioning policy
+
+The HeavyEdge dataset follows semantic versioning.
+
+**Major version**
+
+- Matches the raw dataset version.
+- Each major version has dedicated repository, e.g., `heavyedge-dataset-v1`, `heavyedge-dataset-v2`, and so on.
+
+**Minor version**
+
+- Preprocessing algorithm or configuration is changed.
+
+**Patch version**
+
+- Bug fix.
+- Metadata change.
