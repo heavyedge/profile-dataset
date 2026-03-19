@@ -1,9 +1,10 @@
 import os
+
 from huggingface_hub import HfApi
 
 api = HfApi(token=os.getenv("HUGGINGFACE_TOKEN"))
 
-DATASET_VERSION = "0.1.0"
+DATASET_VERSION = "0.2.0"
 
 api.create_repo(
     repo_id="jeesoo9595/heavyedge-dataset",
@@ -11,8 +12,9 @@ api.create_repo(
     private=True,
     exist_ok=True,
 )
-api.upload_folder(
-    folder_path="dataset",
+api.upload_file(
+    path_or_fileobj="dataset.tar.gz",
+    path_in_repo="dataset.tar.gz",
     repo_id="jeesoo9595/heavyedge-dataset",
     repo_type="dataset",
     commit_message=f"Upload dataset version {DATASET_VERSION}",
