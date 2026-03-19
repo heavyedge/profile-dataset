@@ -1,0 +1,6 @@
+raw-dataset.tar
+_data
+_temp
+dataset/heavyedge-dataset.h5
+
+.vscode
