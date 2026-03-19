@@ -63,9 +63,37 @@ jobs:
         run: |
           make -j 10
           openssl enc -aes-256-cbc -pbkdf2 -in dataset/heavyedge-dataset.h5 -out heavyedge-dataset.h5.enc -pass env:ARTIFACT_KEY
+        env:
+          ARTIFACT_KEY: ${{ secrets.ARTIFACT_KEY }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: preprocessed-dataset
           path: heavyedge-dataset.h5.enc
           retention-days: 1
+
+  upload:
+    name: Upload model
+    runs-on: ubuntu-latest
+    needs: preprocess
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: preprocessed-dataset
+
+      - name: Decrypt and unpack preprocessed dataset
+        run: |
+          openssl enc -d -aes-256-cbc -pbkdf2 -in heavyedge-dataset.h5.enc -out heavyedge-dataset.h5 -pass env:ARTIFACT_KEY
+          mkdir -p dataset
+          mv heavyedge-dataset.h5 dataset/
+        env:
+          ARTIFACT_KEY: ${{ secrets.ARTIFACT_KEY }}
+
+      - run: pip install huggingface_hub
+
+      - run: python3 upload.py
+        env:
+          HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}

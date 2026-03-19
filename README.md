@@ -17,3 +17,10 @@ mkdir -p _data
 tar -xf raw-dataset.tar -C _data
 make
 ```
+
+## Upload to HuggingFace
+
+```
+pip install huggingface_hub
+python3 upload.py
+```

@@ -30,6 +30,12 @@ endef
 
 $(foreach dataset,$(DATASETS),$(eval $(call dataset-mean,$(dataset))))
 
-dataset/heavyedge-dataset.h5: $(foreach dataset, $(DATASETS), _temp/MeanProfiles-$(dataset).h5)
+# dataset/heavyedge-dataset.h5: $(foreach dataset, $(DATASETS), _temp/MeanProfiles-$(dataset).h5)
+# 	mkdir -p $(@D)
+# 	heavyedge merge $^ -o $@
+
+# Temporary recipe for testing
+
+dataset/heavyedge-dataset.h5:
 	mkdir -p $(@D)
-	heavyedge merge $^ -o $@
+	touch $@
