@@ -36,7 +36,7 @@ The HeavyEdge dataset follows semantic versioning.
 **Major version**
 
 - Matches the raw dataset version.
-- Each major version has dedicated repository, e.g., `heavyedge-dataset-v1`, `heavyedge-dataset-v2`, and so on.
+- Each major version has dedicated repository, e.g., `heavyedge-profiles-v1`, `heavyedge-profiles-v2`, and so on.
 
 **Minor version**
 
