@@ -2,7 +2,7 @@
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-Dataset-orange?logo=huggingface)](https://huggingface.co/datasets/jeesoo9595/heavyedge-profiles-v1)
 [![GitHub repository](https://img.shields.io/badge/github-repo-blue?logo=github)](https://github.com/heavyedge/profile-dataset)
 
-Repository to preprocess raw dataset for [HeavyEdge](https://pypi.org/project/heavyedge/) package.
+Repository to preprocess and distribute edge profile dataset for [HeavyEdge](https://pypi.org/project/heavyedge/) and other packages.
 
 ## Setup
 
