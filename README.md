@@ -7,7 +7,7 @@ Repository to preprocess and distribute edge profile dataset for [HeavyEdge](htt
 ## Setup
 
 ```
-pip install gdown
+pip install 'gdown<6.0.0'
 gdown --fuzzy [google drive link] -O raw-dataset.tar
 ```
 
