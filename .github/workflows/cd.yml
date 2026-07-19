@@ -1,97 +1,105 @@
 name: CD
 
 on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
   release:
     types: [published]
 
 jobs:
 
-  setup:
-    name: Setup environment
+  resolve-variables:
+
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-
-      - run: pip install 'gdown<6.0.0'
-
-      - name: Download raw dataset
-        run: gdown --fuzzy "$GOOGLE_DRIVE_LINK" -O raw-dataset.tar
-        env:
-          GOOGLE_DRIVE_LINK: ${{ secrets.GOOGLE_DRIVE_LINK }}
-
-      - name: Encrypt raw dataset
-        run: openssl enc -aes-256-cbc -pbkdf2 -in raw-dataset.tar -out raw-dataset.tar.enc -pass env:ARTIFACT_KEY
-        env:
-          ARTIFACT_KEY: ${{ secrets.ARTIFACT_KEY }}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: raw-dataset
-          path: raw-dataset.tar.enc
-          retention-days: 1
-
-  preprocess:
-    name: Preprocess data
-    runs-on: ubuntu-latest
-    needs: setup
+    outputs:
+      model_mode: ${{ steps.configuration.outputs.model_mode }}
+      push_doc: ${{ steps.configuration.outputs.push_doc }}
+      model_revision: ${{ steps.configuration.outputs.model_revision }}
+      model_repo_id: ${{ steps.configuration.outputs.model_repo_id }}
+      email_recipient: ${{ steps.email.outputs.email }}
 
     steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          name: raw-dataset
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
 
-      - name: Decrypt and unpack raw dataset
+      - name: Resolve CD configuration
+        id: configuration
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+        shell: bash
         run: |
-          openssl enc -d -aes-256-cbc -pbkdf2 -in raw-dataset.tar.enc -out raw-dataset.tar -pass env:ARTIFACT_KEY
-          mkdir -p _data
-          tar -xf raw-dataset.tar -C _data
-        env:
-          ARTIFACT_KEY: ${{ secrets.ARTIFACT_KEY }}
+          python3 .github/scripts/parse-version.py \
+            --event-name "$EVENT_NAME" \
+            --ref-name "$REF_NAME"
 
-      - uses: actions/setup-python@v5
+      - name: Resolve email recipient
+        id: email
+        uses: actions/github-script@v9
+        env:
+          GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          NOTIFY_EMAIL_MAP: ${{ vars.SMTP_NOTIFY_EMAIL_MAP }}
         with:
-          python-version: "3.13"
+          script: |
+            const noreplyPattern = /(^|@)(users\.)?noreply\.github\.com$/i;
+            const usableEmail = (email) => email && !noreplyPattern.test(email);
 
-      - run: pip install -r requirements.txt
+            let emailMap = {};
+            if (process.env.NOTIFY_EMAIL_MAP) {
+              try {
+                emailMap = JSON.parse(process.env.NOTIFY_EMAIL_MAP);
+              } catch (error) {
+                core.warning(`Ignoring invalid SMTP_NOTIFY_EMAIL_MAP JSON: ${error.message}`);
+              }
+            }
 
-      - name: Preprocess and encrypt training data
-        run: |
-          make -j 10
-          openssl enc -aes-256-cbc -pbkdf2 -in dataset.tar.gz -out dataset.tar.gz.enc -pass env:ARTIFACT_KEY
-        env:
-          ARTIFACT_KEY: ${{ secrets.ARTIFACT_KEY }}
+            const { data: commit } = await github.rest.repos.getCommit({
+              ...context.repo,
+              ref: process.env.GIT_SHA,
+            });
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: preprocessed-dataset
-          path: dataset.tar.gz.enc
-          retention-days: 1
+            const candidates = [
+              context.payload.pull_request?.user?.login,
+              context.payload.release?.author?.login,
+              commit.author?.login,
+              commit.committer?.login,
+              context.actor,
+            ].filter(Boolean);
+            const login = [...new Set(candidates)][0];
 
-  upload:
-    name: Upload model
-    runs-on: ubuntu-latest
-    needs: preprocess
+            if (login && emailMap[login]) {
+              core.setOutput('email', emailMap[login]);
+              return;
+            }
 
-    steps:
-      - uses: actions/checkout@v4
+            if (login) {
+              const { data: user } = await github.rest.users.getByUsername({ username: login });
+              if (usableEmail(user.email)) {
+                core.setOutput('email', user.email);
+                return;
+              }
+            }
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: preprocessed-dataset
+            const commitEmails = [
+              commit.commit.author?.email,
+              commit.commit.committer?.email,
+            ];
+            const commitEmail = commitEmails.find(usableEmail);
+            if (commitEmail) {
+              core.setOutput('email', commitEmail);
+              return;
+            }
 
-      - name: Decrypt preprocessed dataset
-        run: |
-          openssl enc -d -aes-256-cbc -pbkdf2 -in dataset.tar.gz.enc -out dataset.tar.gz -pass env:ARTIFACT_KEY
-        env:
-          ARTIFACT_KEY: ${{ secrets.ARTIFACT_KEY }}
-
-      - run: pip install huggingface_hub
-
-      - run: python3 upload.py
-        env:
-          HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
+            core.warning(
+              `Could not resolve a public notification email for ${login || 'the commit author'}; deployment email notification will be skipped.`
+            );
+            core.setOutput('email', '');
