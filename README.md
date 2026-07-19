@@ -2,21 +2,20 @@
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-Dataset-orange?logo=huggingface)](https://huggingface.co/datasets/jeesoo9595/heavyedge-profiles-v1)
 [![GitHub repository](https://img.shields.io/badge/github-repo-blue?logo=github)](https://github.com/heavyedge/profile-dataset)
 
-Repository to preprocess and distribute edge profile dataset for [HeavyEdge](https://pypi.org/project/heavyedge/) and other packages.
+Preprocessed edge profile dataset.
 
 ## Setup
 
-```
-pip install gdown
-gdown --fuzzy [google drive link] -O raw-dataset.tar
+```sh
+export GDRIVE_LINK="..."
+pip install uv
+uv pip install --system -r requirements.txt
+./download.sh
 ```
 
 ## Preprocessing
 
 ```
-pip install -r requirements.txt
-mkdir -p _data
-tar -xf raw-dataset.tar -C _data
 make
 ```
 
