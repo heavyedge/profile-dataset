@@ -38,3 +38,29 @@ jobs:
       - name: lint with isort
         run: |
           isort --check .
+
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: get repo
+        uses: actions/checkout@v3
+
+      - name: set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: install package
+        run: |
+          uv pip install --system -r requirements.txt
+
+      - name: download dataset
+        run: ./download.sh
+        env:
+          GOOGLE_DRIVE_LINK: ${{ secrets.GOOGLE_DRIVE_LINK }}
