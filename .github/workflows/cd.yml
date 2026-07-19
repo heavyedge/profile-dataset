@@ -20,6 +20,9 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
+      dataset_mode: ${{ steps.configuration.outputs.dataset_mode }}
+      dataset_revision: ${{ steps.configuration.outputs.dataset_revision }}
+      dataset_repo_id: ${{ steps.configuration.outputs.dataset_repo_id }}
       email_recipient: ${{ steps.email.outputs.email }}
 
     steps:
@@ -29,6 +32,17 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+
+      - name: Resolve CD configuration
+        id: configuration
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          python3 .github/scripts/parse-version.py \
+            --event-name "$EVENT_NAME" \
+            --ref-name "$REF_NAME"
 
       - name: Resolve email recipient
         id: email
