@@ -63,7 +63,7 @@ jobs:
       - name: download dataset
         run: ./download.sh
         env:
-          GOOGLE_DRIVE_LINK: ${{ secrets.GOOGLE_DRIVE_LINK }}
+          GDRIVE_LINK: ${{ secrets.GOOGLE_DRIVE_LINK }}
 
       - name: test
         run: |
