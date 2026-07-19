@@ -1,5 +1,5 @@
 # Edge Profile Dataset
-[![HuggingFace](https://img.shields.io/badge/HuggingFace-Dataset-orange?logo=huggingface)](https://huggingface.co/datasets/jeesoo9595/heavyedge-profiles-v1)
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-Dataset-orange?logo=huggingface)](https://huggingface.co/datasets/jeesoo9595/heavyedge-profiles)
 [![GitHub repository](https://img.shields.io/badge/github-repo-blue?logo=github)](https://github.com/heavyedge/profile-dataset)
 
 Preprocessed edge profile dataset.
@@ -13,35 +13,23 @@ uv pip install --system -r requirements.txt
 ./download.sh
 ```
 
-## Preprocessing
+## Building the dataset
 
 ```
 make
 ```
 
-## Upload to HuggingFace
-
-Make sure that the dataset version in `upload.py` is updated.
-
-```
-pip install huggingface_hub
-python3 upload.py
-```
+Each `datasets/v*` directory stores preprocessed profiles from the corresponding major version of raw profile dataset.
 
 ## Versioning policy
 
-The HeavyEdge dataset follows semantic versioning.
+This repository follows semantic versioning with [Python version specifiers](https://packaging.python.org/en/latest/specifications/version-specifiers/):
 
-**Major version**
+```
+N.N.N[{a|b|rc}N][.postN][.devN]
+```
 
-- Matches the raw dataset version.
-- Each major version has dedicated repository, e.g., `heavyedge-profiles-v1`, `heavyedge-profiles-v2`, and so on.
+Datasets are uploaded to HuggingFace repository only when the final relase or the pre-release are made.
 
-**Minor version**
-
-- Preprocessing algorithm or configuration is changed.
-
-**Patch version**
-
-- Bug fix.
-- Metadata change.
+> **NOTE** : Major version is raised only when the dataset is changed in backwards incompatible way.
+> When a new version of dataset is added, minor version is raised with new `dataset/v*` directory.

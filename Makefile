@@ -13,7 +13,7 @@ $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)
 $(foreach dataset,$(DATASETS_v1),datasets/v1/$(dataset)/MeanProfiles.h5)
 
 clean:
-	rm -rf datasets
+	rm -rf datasets/v*
 
 datasets/v1/%.h5: _data/v1/%.tar.gz config/v1/prep.yml
 	@mkdir -p $(@D)
