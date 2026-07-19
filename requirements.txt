@@ -1,1 +1,2 @@
+packaging
 heavyedge >= 1.8.0

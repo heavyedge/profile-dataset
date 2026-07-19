@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+
+  lint:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: get repo
+        uses: actions/checkout@v3
+
+      - name: set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: install dependencies
+        run: |
+          uv pip install --system flake8 black isort
+
+      - name: lint with flake8
+        run: |
+          flake8
+
+      - name: lint with black
+        run: |
+          black --check .
+
+      - name: lint with isort
+        run: |
+          isort --check .
+
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: get repo
+        uses: actions/checkout@v3
+
+      - name: set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: install package
+        run: |
+          uv pip install --system -r requirements.txt
+
+      - name: download dataset
+        run: ./download.sh
+        env:
+          GDRIVE_LINK: ${{ secrets.GOOGLE_DRIVE_LINK }}
+
+      - name: test
+        run: |
+          make datasets/v1/dataset1/001.h5
+          make datasets/v1/dataset1/001-Mean.h5

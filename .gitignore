@@ -1,7 +1,3 @@
-raw-dataset.tar
 _data
-_temp
-dataset
-dataset.tar.gz
-
+datasets/v*
 .vscode

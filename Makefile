@@ -1,12 +1,21 @@
 .ONESHELL:
 
-DATASETS := $(shell ls -d _data/dataset* | sed -E 's|^[^/]*/||')
+DATASETS_v1 := $(shell ls -d _data/v1/dataset* | sed -E 's|^[^/]*/[^/]*/||')
+PROFILES_v1 = $(shell ls _data/v1/$(1)/*.tar.gz | xargs -n 1 basename -s .tar.gz)
 
-.PHONY: all
+.PHONY: all dataset-v1 clean
 
-all: dataset.tar.gz
+all: dataset-v1
 
-_temp/%.h5: _data/%.tar.gz config-preprocess.yml
+dataset-v1: \
+$(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/$(dataset)/$(profile).h5)) \
+$(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/$(dataset)/$(profile)-Mean.h5)) \
+$(foreach dataset,$(DATASETS_v1),datasets/v1/$(dataset)/MeanProfiles.h5)
+
+clean:
+	rm -rf datasets/v*
+
+datasets/v1/%.h5: _data/v1/%.tar.gz config/v1/prep.yml
 	@mkdir -p $(@D)
 	rawdata=$$(mktemp -d)
 	trap 'rm -rf $$rawdata' EXIT INT TERM
@@ -15,28 +24,17 @@ _temp/%.h5: _data/%.tar.gz config-preprocess.yml
 	heavyedge prep --type=csvs --name=$* $$rawdata/$$subdir/HEAD_A --config $(lastword $^) -o $@
 	echo 'Created $@'
 
-dataset/%.h5: _temp/%-Mean.h5
-	@mkdir -p $(@D)
-	cp $< $@
-
-_temp/%-Mean.h5: _temp/%.h5
+datasets/v1/%-Mean.h5: datasets/v1/%.h5 config/v1/mean.yml
 	@filled=$$(mktemp)
 	trap 'rm -rf $$filled' EXIT INT TERM
-	heavyedge fill $< --fill-value=0 -o $$filled
-	heavyedge mean $$filled --wnum=1000 -o $@
+	heavyedge fill $< --config $(lastword $^) -o $$filled
+	heavyedge mean $$filled --config $(lastword $^) -o $@
 	echo 'Created $@'
 
-define dataset-mean
-dataset/$(1)/MeanProfiles.h5: $(foreach expt, $(shell ls _data/$(1)/*.tar.gz | sed -E 's|^[^/]*/||; s/\.tar\.gz//'), _temp/$(expt)-Mean.h5)
-	mkdir -p $$(@D)
-	heavyedge merge $$^ -o $$@
-endef
+.SECONDEXPANSION:
 
-$(foreach dataset,$(DATASETS),$(eval $(call dataset-mean,$(dataset))))
-
-dataset.tar.gz: \
-$(foreach dataset,$(DATASETS),$(foreach expt, $(shell ls _data/$(dataset)/*.tar.gz | sed -E 's|^[^/]*/||; s/\.tar\.gz//'), dataset/$(expt).h5)) \
-$(foreach dataset,$(DATASETS),dataset/$(dataset)/MeanProfiles.h5)
-	tar -czf $@ -C dataset .
+datasets/v1/%/MeanProfiles.h5: $$(foreach profile,$$(call PROFILES_v1,$$*),datasets/v1/$$*/$$(profile)-Mean.h5)
+	mkdir -p $(@D)
+	heavyedge merge $^ -o $@
 
 .SECONDARY:
