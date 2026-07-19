@@ -1,0 +1,117 @@
+name: CD Cleanup
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_check_run_id:
+        required: true
+        type: string
+      cleanup_check_run_id:
+        required: true
+        type: string
+      build_conclusion:
+        required: true
+        type: string
+      upload_dataset_check_run_id:
+        required: false
+        type: string
+      upload_dataset_conclusion:
+        required: true
+        type: string
+      kubernetes_job_name:
+        required: false
+        type: string
+
+jobs:
+
+  update-deploy-checks:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Create GitHub App token for post-deploy checks
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          permission-checks: write
+
+      - name: Update deploy checks
+        uses: actions/github-script@v9
+        env:
+          BUILD_CHECK_RUN_ID: ${{ inputs.build_check_run_id }}
+          BUILD_CONCLUSION: ${{ inputs.build_conclusion }}
+          UPLOAD_DATASET_CHECK_RUN_ID: ${{ inputs.upload_dataset_check_run_id }}
+          UPLOAD_DATASET_CONCLUSION: ${{ inputs.upload_dataset_conclusion }}
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const checks = [
+              [process.env.BUILD_CHECK_RUN_ID, process.env.BUILD_CONCLUSION],
+              [process.env.UPLOAD_DATASET_CHECK_RUN_ID, process.env.UPLOAD_DATASET_CONCLUSION],
+            ].filter(([checkRunId]) => checkRunId);
+            const allowedConclusions = new Set(['success', 'failure']);
+
+            for (const [checkRunId, conclusion] of checks) {
+              const normalizedConclusion = allowedConclusions.has(conclusion)
+                ? conclusion
+                : 'failure';
+
+              await github.rest.checks.update({
+                ...context.repo,
+                check_run_id: checkRunId,
+                status: 'completed',
+                conclusion: normalizedConclusion,
+                completed_at: new Date().toISOString(),
+              });
+            }
+
+  finalize-cleanup-check:
+
+    name: Finalize CD Cleanup check
+
+    needs:
+      - update-deploy-checks
+
+    if: ${{ always() }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          permission-checks: write
+
+      - name: Complete CD Cleanup check
+        uses: actions/github-script@v9
+        env:
+          CLEANUP_CHECK_RUN_ID: ${{ inputs.cleanup_check_run_id }}
+          UPDATE_RESULT: ${{ needs.update-deploy-checks.result }}
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const conclusion =
+              process.env.UPDATE_RESULT === 'success'
+                ? 'success'
+                : 'failure';
+
+            await github.rest.checks.update({
+              ...context.repo,
+              check_run_id: Number(process.env.CLEANUP_CHECK_RUN_ID),
+              status: 'completed',
+              conclusion,
+              completed_at: new Date().toISOString(),
+              output: {
+                title: 'CD Cleanup',
+                summary: `Cleanup result: ${conclusion}`,
+              },
+            });
