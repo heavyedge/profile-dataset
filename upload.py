@@ -1,26 +1,37 @@
+import argparse
 import os
 import sys
 
 from huggingface_hub import HfApi
 from packaging.version import InvalidVersion, Version
 
-REPO = "jeesoo9595/heavyedge-profiles"
-DATASET_VERSION = "v1.0.0a0"
+parser = argparse.ArgumentParser(description="Upload model to Hugging Face Hub")
+parser.add_argument("tag", help="Model version tag (e.g., v1.0.0)")
+parser.add_argument(
+    "--metadata-file",
+    help="Write uploaded model metadata as JSON after a successful upload",
+)
+args = parser.parse_args()
+
+version_text = args.tag.removeprefix("v")
 
 try:
-    version = Version(DATASET_VERSION.removeprefix("v"))
+    version = Version(version_text)
 except InvalidVersion:
-    print(f"Invalid model version tag: {DATASET_VERSION}", file=sys.stderr)
+    print(f"Invalid model version tag: {args.tag}", file=sys.stderr)
     sys.exit(1)
 
 if version.post is not None:
-    print(f"Skipping Hugging Face upload for post release tag: {DATASET_VERSION}")
+    print(f"Skipping Hugging Face upload for post release tag: {args.tag}")
     sys.exit(1)
 if version.dev is not None:
-    print(f"Skipping Hugging Face upload for dev release tag: {DATASET_VERSION}")
+    print(f"Skipping Hugging Face upload for dev release tag: {args.tag}")
     sys.exit(1)
 
 api = HfApi(token=os.getenv("HUGGINGFACE_TOKEN"))
+
+DATASET_VERSION = args.tag
+REPO = "jeesoo9595/heavyedge-profiles"
 
 api.create_repo(
     repo_id=REPO,
