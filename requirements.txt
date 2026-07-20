@@ -1,2 +1,5 @@
 packaging
 heavyedge >= 1.8.0
+pandas
+openpyxl
+PyYAML
