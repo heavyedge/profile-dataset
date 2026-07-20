@@ -1,9 +1,9 @@
 {
   "build": {
     "0": "Build completed successfully.",
-    "1": "HuggingFace login failed.",
-    "2": "Dependency installation failed while running uv pip install.",
-    "3": "Dataset download failed.",
+    "1": "Dependency installation failed while running uv pip install.",
+    "2": "Dataset download failed.",
+    "3": "Failed to resolve dataset mode",
     "4": "Build failed."
   },
   "deploy": {
