@@ -1,6 +1,8 @@
 {
   "build": {
-    "0": "Build completed successfully."
+    "0": "Build completed successfully.",
+    "1": "Dependency installation failed while running uv pip install.",
+    "2": "Dataset download failed."
   },
   "deploy": {
     "0": "Deploy completed successfully.",

@@ -16,7 +16,8 @@ def env(name, default=""):
 
 class BuildStatus(IntEnum):
     SUCCESS = 0
-    FETCH_REPO_FAILED = 1
+    DEPENDENCY_INSTALL_FAILED = 1
+    DATASET_DOWNLOAD_FAILED = 2
 
 
 class DeployStatus(IntEnum):
