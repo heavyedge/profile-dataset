@@ -162,7 +162,7 @@ def build_message(
     msg = EmailMessage()
     msg["From"] = env("SMTP_NOTIFY_SENDER", "heavyedge-bot@users.noreply.github.com")
     msg["To"] = env("SMTP_NOTIFY_RECIPIENT")
-    msg["Subject"] = job_name
+    msg["Subject"] = f"[{status}] {job_name}"
     msg.set_content("\n".join(body_lines) + "\n")
     return msg
 
