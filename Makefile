@@ -8,10 +8,11 @@ PROFILES_v1 = $(shell ls _data/v1/profiles/$(1)/*.tar.gz | xargs -n 1 basename -
 all: dataset-v1
 
 dataset-v1: \
+datasets/v1/pv.csv \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile).h5)) \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile)-Mean.h5))
 
-test: datasets/v1/profiles/dataset1/001-Mean.h5 _temp/v1/ContactAngles.yml
+test: datasets/v1/profiles/dataset1/001-Mean.h5 _temp/v1/pv/dataset1.csv
 
 clean:
 	rm -rf _temp datasets/v*
@@ -35,5 +36,13 @@ datasets/v1/profiles/%-Mean.h5: datasets/v1/profiles/%.h5 config/v1/mean.yml
 _temp/v1/ContactAngles.yml: scripts/v1/write-ca.py  _data/v1/ca/G50 _data/v1/ca/G45 _data/v1/ca/G40 _data/v1/ca/G40IPA
 	mkdir -p $(@D)
 	python3 $^ --slurries HighViscosity Standard LowViscosity LowSurfaceTension -o $@
+
+_temp/v1/pv/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _data/v1/SlurryViscosities/Descending _data/v1/SlurryProperties _temp/v1/ContactAngles.yml
+	mkdir -p $(@D)
+	python3 $^ --dataset=$* -o $@
+
+datasets/v1/pv.csv: $(foreach dataset, $(DATASETS_v1), _temp/v1/pv/$(dataset).csv)
+	mkdir -p $(@D)
+	python3 -c "import pandas as pd; pd.concat([pd.read_csv(path) for path in '$^'.split(' ')]).to_csv('$@', index=False)"
 
 .SECONDARY:
