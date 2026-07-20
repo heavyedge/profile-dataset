@@ -322,7 +322,7 @@ jobs:
           KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
           KUBE_USERNAME: ${{ secrets.KUBE_USERNAME }}
           MLXP_ZONE: ${{ secrets.MLXP_ZONE }}
-          CPU_REQUEST: ${{ needs.resolve-variables.outputs.dataset_mode == 'test' && '1' || '2' }}
+          CPU_REQUEST: ${{ needs.resolve-variables.outputs.dataset_mode == 'test' && '1' || vars.CPU_REQUEST }}
           DOCKER_REGISTRY: ghcr.io
           DOCKER_NAMESPACE: ${{ github.repository_owner }}
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}

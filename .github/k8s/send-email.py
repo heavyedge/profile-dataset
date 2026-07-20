@@ -16,8 +16,10 @@ def env(name, default=""):
 
 class BuildStatus(IntEnum):
     SUCCESS = 0
-    DEPENDENCY_INSTALL_FAILED = 1
-    DATASET_DOWNLOAD_FAILED = 2
+    HF_LOGIN_FAILED = 1
+    DEPENDENCY_INSTALL_FAILED = 2
+    DATASET_DOWNLOAD_FAILED = 3
+    BUILD_FAILED = 4
 
 
 class DeployStatus(IntEnum):
