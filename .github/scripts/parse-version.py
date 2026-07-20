@@ -51,8 +51,6 @@ def main():
 
     # test: push/PR, release: final/pre, reuse: post/dev
     dataset_mode = "test"
-    dataset_revision = ""
-    dataset_repo_id = ""
     if is_release:
         try:
             version = parse_release_version(args.ref_name)
@@ -60,15 +58,11 @@ def main():
                 dataset_mode = "release"
             else:
                 dataset_mode = "reuse"
-                dataset_revision = dataset_tag(args.ref_name, version)
-                dataset_repo_id = "jeesoo9595/heavyedge-profiles"
         except ValueError as error:
             print(error, file=sys.stderr)
             sys.exit(1)
 
     github_output("dataset_mode", dataset_mode)
-    github_output("dataset_revision", dataset_revision)
-    github_output("dataset_repo_id", dataset_repo_id)
 
 
 if __name__ == "__main__":
