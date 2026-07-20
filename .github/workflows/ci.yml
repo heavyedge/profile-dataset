@@ -94,6 +94,6 @@ jobs:
 
       - name: Test Docker image
         run: |
-          docker run --rm heavyedge-profile-dataset:dev-ci sh -c 'export GDRIVE_LINK=$GDRIVE_LINK && uv pip install --system -r requirements.txt && ./download.sh && make test'
+          docker run --rm -e GDRIVE_LINK heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt && ./download.sh && make test'
         env:
           GDRIVE_LINK: ${{ secrets.GOOGLE_DRIVE_LINK }}
