@@ -63,7 +63,7 @@ jobs:
       - name: download dataset
         run: ./download.sh
         env:
-          GDRIVE_LINK: ${{ secrets.PROFILES_V1_GDRIVE }}
+          PROFILES_V1_GDRIVE: ${{ secrets.PROFILES_V1_GDRIVE }}
 
       - name: test
         run: make test
@@ -92,6 +92,6 @@ jobs:
 
       - name: Test Docker image
         run: |
-          docker run --rm -e GDRIVE_LINK heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt && ./download.sh && make test'
+          docker run --rm -e PROFILES_V1_GDRIVE heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt && ./download.sh && make test'
         env:
-          GDRIVE_LINK: ${{ secrets.PROFILES_V1_GDRIVE }}
+          PROFILES_V1_GDRIVE: ${{ secrets.PROFILES_V1_GDRIVE }}

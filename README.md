@@ -7,7 +7,7 @@ Preprocessed edge profile dataset.
 ## Setup
 
 ```sh
-export GDRIVE_LINK="..."
+export PROFILES_V1_GDRIVE="..."
 pip install uv
 uv pip install --system -r requirements.txt
 ./download.sh
