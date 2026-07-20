@@ -22,7 +22,102 @@
       "name": "pv",
       "type": "table",
       "path": "pv.csv",
-      "schema": {},
+      "schema": {
+        "primaryKey": "name",
+        "missingValues": [""],
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Unique experiment identifier, prefixed with the source dataset name.",
+            "constraints": {"required": true, "unique": true}
+          },
+          {
+            "name": "slurry",
+            "type": "string",
+            "description": "Slurry formulation identifier.",
+            "constraints": {"required": true}
+          },
+          {
+            "name": "contact_angle",
+            "type": "number",
+            "unit": "degree",
+            "description": "Static contact angle of the slurry on copper."
+          },
+          {
+            "name": "viscosity",
+            "type": "number",
+            "unit": "Pa*s",
+            "description": "Apparent dynamic viscosity interpolated from the slurry viscosity curve at shear_rate."
+          },
+          {
+            "name": "density",
+            "type": "number",
+            "unit": "kg/m^3",
+            "description": "Slurry mass density."
+          },
+          {
+            "name": "shear_rate",
+            "type": "number",
+            "unit": "1/s",
+            "description": "Nominal shear rate, calculated as coating_speed divided by coating_gap."
+          },
+          {
+            "name": "surface_tension",
+            "type": "number",
+            "unit": "N/m",
+            "description": "Slurry surface tension."
+          },
+          {
+            "name": "flow_rate_per_width",
+            "type": "number",
+            "unit": "m^2/s",
+            "description": "Volumetric flow rate per coating width."
+          },
+          {
+            "name": "coating_speed",
+            "type": "number",
+            "unit": "m/s",
+            "description": "Coating-web speed."
+          },
+          {
+            "name": "slot_width",
+            "type": "number",
+            "unit": "m",
+            "description": "Slot-die width."
+          },
+          {
+            "name": "coating_gap",
+            "type": "number",
+            "unit": "m",
+            "description": "Die-to-substrate gap."
+          },
+          {
+            "name": "downstream_lip_length",
+            "type": "number",
+            "unit": "m",
+            "description": "Downstream die-lip length."
+          },
+          {
+            "name": "upstream_lip_length",
+            "type": "number",
+            "unit": "m",
+            "description": "Upstream die-lip length."
+          },
+          {
+            "name": "shim_thickness",
+            "type": "number",
+            "unit": "m",
+            "description": "Die shim thickness."
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "format": "%Y-%m-%d",
+            "description": "Experiment date in ISO 8601 calendar-date form."
+          }
+        ]
+      },
       "title": "Process variables",
       "description": "Process variable data measured from slot-die coating experiments.",
       "format": "csv",
