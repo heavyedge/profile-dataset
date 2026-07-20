@@ -159,8 +159,6 @@ spec:
               value: "${GITHUB_REPOSITORY}"
             - name: KUBERNETES_JOB_NAME
               value: "${JOB_NAME}"
-            - name: GITHUB_SHA
-              value: "${GITHUB_SHA}"
             - name: BUILD_CHECK_RUN_ID
               value: "${BUILD_CHECK_RUN_ID}"
             - name: UPLOAD_DATASET_CHECK_RUN_ID

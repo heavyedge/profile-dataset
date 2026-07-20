@@ -320,7 +320,7 @@ jobs:
       - name: Deploy to Kubernetes
         shell: bash
         env:
-          GITHUB_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           RUN_ID: ${{ github.run_id }}
           RUN_ATTEMPT: ${{ github.run_attempt }}
           KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
@@ -342,7 +342,7 @@ jobs:
           UPLOAD_DATASET_CHECK_RUN_ID: ${{ needs.create-checks.outputs.upload-dataset-check-run-id }}
           CLEANUP_CHECK_RUN_ID: ${{ needs.create-checks.outputs.cleanup-check-run-id }}
         run: |
-          job_name="heavyedge-feature-models-${GITHUB_SHA::7}-${RUN_ID}-${RUN_ATTEMPT}"
+          job_name="heavyedge-feature-models-${GIT_SHA::7}-${RUN_ID}-${RUN_ATTEMPT}"
           export JOB_NAME="$job_name"
           template_vars="$(grep -oE '\$\{[A-Z_][A-Z0-9_]*\}' .github/k8s/job.yaml | sort -u | tr '\n' ' ')"
           envsubst "$template_vars" < .github/k8s/job.yaml | kubectl apply -f -
