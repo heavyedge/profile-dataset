@@ -123,6 +123,22 @@ spec:
               touch /var/run/heavyedge/deploy.done
               exit "$exit_code"
           env:
+            - name: GH_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-app
+                  key: GH_APP_ID
+            - name: GH_APP_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: github-app
+                  key: GH_APP_PRIVATE_KEY
+            - name: GH_APP_INSTALLATION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-app
+                  key: GH_APP_INSTALLATION_ID
+                  optional: true
             - name: GITHUB_REPOSITORY
               value: "${GITHUB_REPOSITORY}"
             - name: KUBERNETES_JOB_NAME
