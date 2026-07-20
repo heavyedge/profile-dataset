@@ -1,4 +1,5 @@
 import argparse
+import json
 import pathlib
 
 import numpy as np
@@ -26,9 +27,36 @@ parser.add_argument(
     help="Directory of physical property yaml files",
 )
 parser.add_argument("ca", type=pathlib.Path, help="Contact angle yaml file")
+parser.add_argument(
+    "datapackage",
+    type=pathlib.Path,
+    help="Data Package descriptor containing the pv field units",
+)
 parser.add_argument("--dataset", help="Dataset name")
 parser.add_argument("-o", "--out", type=pathlib.Path, help="Output csv file")
 args = parser.parse_args()
+
+
+def load_field_units(path):
+    """Load the declared units for the pv resource from a Data Package."""
+    with open(path) as f:
+        datapackage = json.load(f)
+
+    resource = next(
+        (resource for resource in datapackage["resources"] if resource["name"] == "pv"),
+        None,
+    )
+    if resource is None:
+        raise ValueError(f"No pv resource found in {path}")
+
+    return {
+        field["name"]: field["unit"]
+        for field in resource["schema"]["fields"]
+        if "unit" in field
+    }
+
+
+field_units = load_field_units(args.datapackage)
 
 # LOAD DATA
 
@@ -73,8 +101,12 @@ viscosity = np.array(
 st = np.array([properties[s]["SurfaceTension"] for s in pv["Slurry"]], dtype=object)
 
 
-def to_magnitude(quantity, unit):
-    """Convert a Pint quantity to the numeric value in the schema's unit."""
+def to_magnitude(quantity, field):
+    """Convert a Pint quantity to the numeric value in the field's declared unit."""
+    try:
+        unit = field_units[field]
+    except KeyError as error:
+        raise ValueError(f"No unit declared for pv field: {field}") from error
     return quantity.to(unit).magnitude
 
 
@@ -94,21 +126,25 @@ data = {
     # Material identifiers and measured slurry properties.
     "name": pv["Name"],
     "slurry": pv["Slurry"].apply(lambda x: SLURRY_DICT[x]),
-    "contact_angle": [to_magnitude(angle, "degree") for angle in contact_angles],
-    "viscosity": [to_magnitude(value, "Pa*s") for value in viscosity],
-    "density": [to_magnitude(value, "kg/m^3") for value in density],
-    "shear_rate": [to_magnitude(value, "1/s") for value in shear_rate],
-    "surface_tension": [to_magnitude(value, "N/m") for value in st],
+    "contact_angle": [to_magnitude(angle, "contact_angle") for angle in contact_angles],
+    "viscosity": [to_magnitude(value, "viscosity") for value in viscosity],
+    "density": [to_magnitude(value, "density") for value in density],
+    "shear_rate": [to_magnitude(value, "shear_rate") for value in shear_rate],
+    "surface_tension": [to_magnitude(value, "surface_tension") for value in st],
     # Process conditions from the experiment index.
     "flow_rate_per_width": [
-        to_magnitude(value, "m^2/s") for value in pv["FlowRatePerWidth"]
+        to_magnitude(value, "flow_rate_per_width") for value in pv["FlowRatePerWidth"]
     ],
-    "coating_speed": [to_magnitude(value, "m/s") for value in pv["Speed"]],
-    "slot_width": [to_magnitude(value, "m") for value in pv["Width"]],
-    "coating_gap": [to_magnitude(value, "m") for value in pv["Gap"]],
-    "downstream_lip_length": [to_magnitude(value, "m") for value in pv["Ld"]],
-    "upstream_lip_length": [to_magnitude(value, "m") for value in pv["Lu"]],
-    "shim_thickness": [to_magnitude(value, "m") for value in pv["Shim"]],
+    "coating_speed": [to_magnitude(value, "coating_speed") for value in pv["Speed"]],
+    "slot_width": [to_magnitude(value, "slot_width") for value in pv["Width"]],
+    "coating_gap": [to_magnitude(value, "coating_gap") for value in pv["Gap"]],
+    "downstream_lip_length": [
+        to_magnitude(value, "downstream_lip_length") for value in pv["Ld"]
+    ],
+    "upstream_lip_length": [
+        to_magnitude(value, "upstream_lip_length") for value in pv["Lu"]
+    ],
+    "shim_thickness": [to_magnitude(value, "shim_thickness") for value in pv["Shim"]],
     "date": pv["Date"].dt.strftime("%Y-%m-%d"),
 }
 
