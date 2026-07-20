@@ -1,7 +1,7 @@
 .ONESHELL:
 
-DATASETS_v1 := $(shell ls -d _data/v1/dataset* | sed -E 's|^[^/]*/[^/]*/||')
-PROFILES_v1 = $(shell ls _data/v1/$(1)/*.tar.gz | xargs -n 1 basename -s .tar.gz)
+DATASETS_v1 := $(shell ls -d _data/v1/profiles/dataset* | xargs -n 1 basename)
+PROFILES_v1 = $(shell ls _data/v1/profiles/$(1)/*.tar.gz | xargs -n 1 basename -s .tar.gz)
 
 .PHONY: all dataset-v1 test clean
 
@@ -16,7 +16,7 @@ test: datasets/v1/profiles/dataset1/001-Mean.h5
 clean:
 	rm -rf datasets/v*
 
-datasets/v1/profiles/%.h5: _data/v1/%.tar.gz config/v1/prep.yml
+datasets/v1/profiles/%.h5: _data/v1/profiles/%.tar.gz config/v1/prep.yml
 	@mkdir -p $(@D)
 	rawdata=$$(mktemp -d)
 	trap 'rm -rf $$rawdata' EXIT INT TERM
