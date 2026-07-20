@@ -8,9 +8,7 @@ Preprocessed edge profile dataset.
 
 ```sh
 export PROFILES_V1_GDRIVE="..."
-pip install uv
-uv pip install --system -r requirements.txt
-./download.sh
+./setup.sh
 ```
 
 ## Building the dataset

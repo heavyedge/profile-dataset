@@ -53,15 +53,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: set up uv
-        uses: astral-sh/setup-uv@v5
-
-      - name: install package
-        run: |
-          uv pip install --system -r requirements.txt
-
-      - name: download dataset
-        run: ./download.sh
+      - name: set up the environment
+        run: ./setup.sh
         env:
           PROFILES_V1_GDRIVE: ${{ secrets.PROFILES_V1_GDRIVE }}
 
@@ -92,6 +85,6 @@ jobs:
 
       - name: Test Docker image
         run: |
-          docker run --rm -e PROFILES_V1_GDRIVE heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt && ./download.sh && make test'
+          docker run --rm -e PROFILES_V1_GDRIVE heavyedge-profile-dataset:dev-ci sh -c './setup.sh && make test'
         env:
           PROFILES_V1_GDRIVE: ${{ secrets.PROFILES_V1_GDRIVE }}

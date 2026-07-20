@@ -1,10 +1,9 @@
 {
   "build": {
     "0": "Build completed successfully.",
-    "1": "Dependency installation failed while running uv pip install.",
-    "2": "Dataset download failed.",
-    "3": "Failed to resolve dataset mode",
-    "4": "Build failed."
+    "1": "Setup failed.",
+    "2": "Failed to resolve dataset mode",
+    "3": "Build failed."
   },
   "deploy": {
     "0": "Deploy completed successfully.",
