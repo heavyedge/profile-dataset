@@ -157,6 +157,7 @@ jobs:
   create-checks:
 
     needs:
+      - build-image
       - resolve-variables
 
     outputs:
