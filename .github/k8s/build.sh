@@ -39,6 +39,6 @@ case "${DATASET_MODE}" in
     ;;
 esac
 
-if ! make -j "${CPU_REQUEST}" ${make_targets}; then
+if ! make -j ${CPU_REQUEST} ${make_targets}; then
   exit 4
 fi

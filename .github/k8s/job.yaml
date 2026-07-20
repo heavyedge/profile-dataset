@@ -191,6 +191,8 @@ spec:
               value: "${DATASET_REVISION}"
             - name: DATASET_REPO_ID
               value: "${DATASET_REPO_ID}"
+            - name: CPU_REQUEST
+              value: "${CPU_REQUEST}"
           volumeMounts:
             - name: postfix-state
               mountPath: /var/run/heavyedge
