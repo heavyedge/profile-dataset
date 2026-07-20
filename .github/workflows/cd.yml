@@ -342,7 +342,7 @@ jobs:
           UPLOAD_DATASET_CHECK_RUN_ID: ${{ needs.create-checks.outputs.upload-dataset-check-run-id }}
           CLEANUP_CHECK_RUN_ID: ${{ needs.create-checks.outputs.cleanup-check-run-id }}
         run: |
-          job_name="heavyedge-feature-models-${GIT_SHA::7}-${RUN_ID}-${RUN_ATTEMPT}"
+          job_name="heavyedge-profile-dataset-${GIT_SHA::7}-${RUN_ID}-${RUN_ATTEMPT}"
           export JOB_NAME="$job_name"
           template_vars="$(grep -oE '\$\{[A-Z_][A-Z0-9_]*\}' .github/k8s/job.yaml | sort -u | tr '\n' ' ')"
           envsubst "$template_vars" < .github/k8s/job.yaml | kubectl apply -f -
