@@ -157,6 +157,7 @@ jobs:
 
     needs:
       - update-deploy-checks
+      - delete-image
 
     if: ${{ always() }}
 
@@ -176,13 +177,17 @@ jobs:
         env:
           CLEANUP_CHECK_RUN_ID: ${{ inputs.cleanup_check_run_id }}
           UPDATE_RESULT: ${{ needs.update-deploy-checks.result }}
+          DELETE_IMAGE_RESULT: ${{ needs.delete-image.result }}
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
-            const conclusion =
-              process.env.UPDATE_RESULT === 'success'
-                ? 'success'
-                : 'failure';
+            const results = {
+              updateDeployChecks: process.env.UPDATE_RESULT,
+              deleteImage: process.env.DELETE_IMAGE_RESULT,
+            };
+            const conclusion = Object.values(results).every((result) => result === 'success')
+              ? 'success'
+              : 'failure';
 
             await github.rest.checks.update({
               ...context.repo,
@@ -192,6 +197,6 @@ jobs:
               completed_at: new Date().toISOString(),
               output: {
                 title: 'CD Cleanup',
-                summary: `Cleanup result: ${conclusion}`,
+                summary: `Cleanup result: ${conclusion}. Check updates: ${results.updateDeployChecks}; temporary image deletion: ${results.deleteImage}.`,
               },
             });
