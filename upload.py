@@ -1,5 +1,6 @@
 import argparse
 import os
+import json
 import sys
 
 from huggingface_hub import HfApi
@@ -51,3 +52,12 @@ api.create_tag(
     repo_type="dataset",
     tag=DATASET_VERSION,
 )
+
+if args.metadata_file:
+    metadata = {
+        "dataset_repo": f"{REPO}",
+        "dataset_revision": DATASET_VERSION,
+    }
+    with open(args.metadata_file, "w", encoding="utf-8") as file:
+        json.dump(metadata, file, sort_keys=True)
+        file.write("\n")
