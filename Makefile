@@ -46,7 +46,7 @@ datasets/v1/pv.csv: $(foreach dataset, $(DATASETS_v1), _temp/v1/pv/$(dataset).cs
 	mkdir -p $(@D)
 	python3 -c "import pandas as pd; pd.concat([pd.read_csv(path) for path in '$^'.split(' ')]).to_csv('$@', index=False)"
 
-datasets/v1/pv.schema.json: config/v1/pv.schema.json
+datasets/v1/datapackage.json: config/v1/datapackage.json
 	mkdir -p $(@D)
 	cp $< $@
 

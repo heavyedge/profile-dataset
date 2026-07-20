@@ -1,0 +1,51 @@
+{
+  "name": "heavyedge-profile-dataset",
+  "title": "HeavyEdge Profile Dataset",
+  "description": "Dataset for heavyedge profile measurements",
+  "version": "1",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0"
+    }
+  ],
+
+  "resources": [
+    {
+      "name": "profiles",
+      "path": "profiles/",
+      "title": "Slot-die coating edge profiles",
+      "description": "Edge profile data measured from slot-die coating experiments. Each profile is stored in a separate HDF5 file.",
+      "format": "hdf5",
+      "mediatype": "application/vnd.hdfgroup.hdf5"
+    },
+    {
+      "name": "pv",
+      "type": "table",
+      "path": "pv.csv",
+      "schema": {},
+      "title": "Process variables",
+      "description": "Process variable data measured from slot-die coating experiments.",
+      "format": "csv",
+      "mediatype": "text/csv"
+    }
+  ],
+
+  "contributors": [
+    {
+      "title": "Jihwan Yoon",
+      "role": "creator"
+    },
+    {
+      "title": "Kyengmin Min",
+      "role": "creator"
+    },
+    {
+      "title": "Jaewook Nam",
+      "role": "contact"
+    },
+    {
+      "title": "Jisoo Song",
+      "role": "dataCurator"
+    }
+  ]
+}
