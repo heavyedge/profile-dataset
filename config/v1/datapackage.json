@@ -1,0 +1,146 @@
+{
+  "name": "heavyedge-profile-dataset",
+  "title": "HeavyEdge Profile Dataset",
+  "description": "Dataset for heavyedge profile measurements",
+  "version": "1",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0"
+    }
+  ],
+
+  "resources": [
+    {
+      "name": "profiles",
+      "path": "profiles/",
+      "title": "Slot-die coating edge profiles",
+      "description": "Edge profile data measured from slot-die coating experiments. Each profile is stored in a separate HDF5 file.",
+      "format": "hdf5",
+      "mediatype": "application/vnd.hdfgroup.hdf5"
+    },
+    {
+      "name": "pv",
+      "type": "table",
+      "path": "pv.csv",
+      "schema": {
+        "primaryKey": "name",
+        "missingValues": [""],
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Unique experiment identifier, prefixed with the source dataset name.",
+            "constraints": {"required": true, "unique": true}
+          },
+          {
+            "name": "slurry",
+            "type": "string",
+            "description": "Slurry formulation identifier.",
+            "constraints": {"required": true}
+          },
+          {
+            "name": "contact_angle",
+            "type": "number",
+            "unit": "degree",
+            "description": "Static contact angle of the slurry on copper."
+          },
+          {
+            "name": "viscosity",
+            "type": "number",
+            "unit": "Pa*s",
+            "description": "Apparent dynamic viscosity interpolated from the slurry viscosity curve at shear_rate."
+          },
+          {
+            "name": "density",
+            "type": "number",
+            "unit": "g/cm^3",
+            "description": "Slurry mass density."
+          },
+          {
+            "name": "shear_rate",
+            "type": "number",
+            "unit": "1/s",
+            "description": "Nominal shear rate, calculated as coating_speed divided by coating_gap."
+          },
+          {
+            "name": "surface_tension",
+            "type": "number",
+            "unit": "mN/m",
+            "description": "Slurry surface tension."
+          },
+          {
+            "name": "flow_rate_per_width",
+            "type": "number",
+            "unit": "mL/min/m",
+            "description": "Volumetric flow rate per coating width."
+          },
+          {
+            "name": "coating_speed",
+            "type": "number",
+            "unit": "m/min",
+            "description": "Coating-web speed."
+          },
+          {
+            "name": "slot_width",
+            "type": "number",
+            "unit": "mm",
+            "description": "Slot-die width."
+          },
+          {
+            "name": "coating_gap",
+            "type": "number",
+            "unit": "µm",
+            "description": "Die-to-substrate gap."
+          },
+          {
+            "name": "downstream_lip_length",
+            "type": "number",
+            "unit": "mm",
+            "description": "Downstream die-lip length."
+          },
+          {
+            "name": "upstream_lip_length",
+            "type": "number",
+            "unit": "mm",
+            "description": "Upstream die-lip length."
+          },
+          {
+            "name": "shim_thickness",
+            "type": "number",
+            "unit": "mm",
+            "description": "Feed slot shim thickness."
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "format": "%Y-%m-%d",
+            "description": "Experiment date in ISO 8601 calendar-date form."
+          }
+        ]
+      },
+      "title": "Process variables",
+      "description": "Process variable data measured from slot-die coating experiments.",
+      "format": "csv",
+      "mediatype": "text/csv"
+    }
+  ],
+
+  "contributors": [
+    {
+      "title": "Jihwan Yoon",
+      "role": "creator"
+    },
+    {
+      "title": "Kyengmin Min",
+      "role": "creator"
+    },
+    {
+      "title": "Jaewook Nam",
+      "role": "contact"
+    },
+    {
+      "title": "Jisoo Song",
+      "role": "dataCurator"
+    }
+  ]
+}

@@ -178,6 +178,11 @@ spec:
                 secretKeyRef:
                   name: gdrive
                   key: PROFILES_V1_GDRIVE
+            - name: CA_V1_GDRIVE
+              valueFrom:
+                secretKeyRef:
+                  name: gdrive
+                  key: CA_V1_GDRIVE
             - name: HUGGINGFACE_TOKEN
               valueFrom:
                 secretKeyRef:
