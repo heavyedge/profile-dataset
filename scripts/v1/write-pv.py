@@ -73,9 +73,9 @@ viscosity = np.array(
 st = np.array([properties[s]["SurfaceTension"] for s in pv["Slurry"]], dtype=object)
 
 
-def format_quantity(quantity):
-    """Return a Pint-readable quantity string for CSV output."""
-    return str(quantity)
+def to_magnitude(quantity, unit):
+    """Convert a Pint quantity to the numeric value in the schema's unit."""
+    return quantity.to(unit).magnitude
 
 
 SLURRY_DICT = dict(
@@ -94,19 +94,21 @@ data = {
     # Material identifiers and measured slurry properties.
     "name": pv["Name"],
     "slurry": pv["Slurry"].apply(lambda x: SLURRY_DICT[x]),
-    "contact_angle": [format_quantity(angle) for angle in contact_angles],
-    "viscosity": [format_quantity(value) for value in viscosity],
-    "density": [format_quantity(value) for value in density],
-    "shear_rate": [format_quantity(value) for value in shear_rate],
-    "surface_tension": [format_quantity(value) for value in st],
+    "contact_angle": [to_magnitude(angle, "degree") for angle in contact_angles],
+    "viscosity": [to_magnitude(value, "Pa*s") for value in viscosity],
+    "density": [to_magnitude(value, "kg/m^3") for value in density],
+    "shear_rate": [to_magnitude(value, "1/s") for value in shear_rate],
+    "surface_tension": [to_magnitude(value, "N/m") for value in st],
     # Process conditions from the experiment index.
-    "flow_rate_per_width": [format_quantity(value) for value in pv["FlowRatePerWidth"]],
-    "speed": [format_quantity(value) for value in pv["Speed"]],
-    "width": [format_quantity(value) for value in pv["Width"]],
-    "gap": [format_quantity(value) for value in pv["Gap"]],
-    "downstream_lip_length": [format_quantity(value) for value in pv["Ld"]],
-    "upstream_lip_length": [format_quantity(value) for value in pv["Lu"]],
-    "shim": [format_quantity(value) for value in pv["Shim"]],
+    "flow_rate_per_width": [
+        to_magnitude(value, "m^2/s") for value in pv["FlowRatePerWidth"]
+    ],
+    "coating_speed": [to_magnitude(value, "m/s") for value in pv["Speed"]],
+    "slot_width": [to_magnitude(value, "m") for value in pv["Width"]],
+    "coating_gap": [to_magnitude(value, "m") for value in pv["Gap"]],
+    "downstream_lip_length": [to_magnitude(value, "m") for value in pv["Ld"]],
+    "upstream_lip_length": [to_magnitude(value, "m") for value in pv["Lu"]],
+    "shim_thickness": [to_magnitude(value, "m") for value in pv["Shim"]],
     "date": pv["Date"].dt.strftime("%Y-%m-%d"),
 }
 
