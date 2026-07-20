@@ -108,7 +108,7 @@
             "name": "shim_thickness",
             "type": "number",
             "unit": "mm",
-            "description": "Die shim thickness."
+            "description": "Feed slot shim thickness."
           },
           {
             "name": "date",
