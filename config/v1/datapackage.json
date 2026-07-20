@@ -53,7 +53,7 @@
           {
             "name": "density",
             "type": "number",
-            "unit": "kg/m^3",
+            "unit": "g/cm^3",
             "description": "Slurry mass density."
           },
           {
@@ -65,49 +65,49 @@
           {
             "name": "surface_tension",
             "type": "number",
-            "unit": "N/m",
+            "unit": "mN/m",
             "description": "Slurry surface tension."
           },
           {
             "name": "flow_rate_per_width",
             "type": "number",
-            "unit": "m^2/s",
+            "unit": "mL/min/m",
             "description": "Volumetric flow rate per coating width."
           },
           {
             "name": "coating_speed",
             "type": "number",
-            "unit": "m/s",
+            "unit": "m/min",
             "description": "Coating-web speed."
           },
           {
             "name": "slot_width",
             "type": "number",
-            "unit": "m",
+            "unit": "mm",
             "description": "Slot-die width."
           },
           {
             "name": "coating_gap",
             "type": "number",
-            "unit": "m",
+            "unit": "µm",
             "description": "Die-to-substrate gap."
           },
           {
             "name": "downstream_lip_length",
             "type": "number",
-            "unit": "m",
+            "unit": "mm",
             "description": "Downstream die-lip length."
           },
           {
             "name": "upstream_lip_length",
             "type": "number",
-            "unit": "m",
+            "unit": "mm",
             "description": "Upstream die-lip length."
           },
           {
             "name": "shim_thickness",
             "type": "number",
-            "unit": "m",
+            "unit": "mm",
             "description": "Die shim thickness."
           },
           {
