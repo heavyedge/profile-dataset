@@ -66,9 +66,7 @@ jobs:
           GDRIVE_LINK: ${{ secrets.GOOGLE_DRIVE_LINK }}
 
       - name: test
-        run: |
-          make datasets/v1/dataset1/001.h5
-          make datasets/v1/dataset1/001-Mean.h5
+        run: make test
 
   image-dev:
 
