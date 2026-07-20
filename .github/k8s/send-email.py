@@ -135,13 +135,11 @@ def build_message(
     repository = env("GITHUB_REPOSITORY", "heavyedge/profile-dataset")
     ref_name = env("GITHUB_REF_NAME", "")
 
-    subject_parts = [f"[{status}]", "HeavyEdge profile-dataset deploy"]
-    if ref_name:
-        subject_parts.append(ref_name)
+    job_name = env("KUBERNETES_JOB_NAME", "heavyedge-profile-dataset")
 
     body_lines = [
         f"Deployment status: {status}",
-        f"Repository: {repository}",
+        f"Repository: https://github.com/{repository}",
     ]
     if ref_name:
         body_lines.append(f"Ref: {ref_name}")
@@ -164,7 +162,7 @@ def build_message(
     msg = EmailMessage()
     msg["From"] = env("SMTP_NOTIFY_SENDER", "heavyedge-bot@users.noreply.github.com")
     msg["To"] = env("SMTP_NOTIFY_RECIPIENT")
-    msg["Subject"] = " - ".join(subject_parts)
+    msg["Subject"] = job_name
     msg.set_content("\n".join(body_lines) + "\n")
     return msg
 

@@ -1,6 +1,6 @@
 import argparse
-import os
 import json
+import os
 import sys
 
 from huggingface_hub import HfApi
