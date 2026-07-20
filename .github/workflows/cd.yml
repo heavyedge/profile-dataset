@@ -317,9 +317,11 @@ jobs:
   deploy-fallback:
 
     needs:
+      - build-image
       - create-checks
+      - deploy
 
-    if: ${{ always() }}
+    if: ${{ always() && needs.deploy.result == 'failure' }}
 
     runs-on: ubuntu-latest
 
@@ -347,6 +349,7 @@ jobs:
           BUILD_CHECK_RUN_ID: ${{ needs.create-checks.outputs.build-check-run-id }}
           UPLOAD_DATASET_CHECK_RUN_ID: ${{ needs.create-checks.outputs.upload-dataset-check-run-id }}
           CLEANUP_CHECK_RUN_ID: ${{ needs.create-checks.outputs.cleanup-check-run-id }}
+          IMAGE_TAG: ${{ needs.build-image.outputs.tag }}
           BUILD_CONCLUSION: failure
           UPLOAD_DATASET_CONCLUSION: failure
         run: |

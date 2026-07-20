@@ -71,6 +71,10 @@ jobs:
               });
             }
 
+  delete-image:
+
+    runs-on: ubuntu-latest
+
     steps:
       - name: Delete temporary Docker image
         shell: bash
