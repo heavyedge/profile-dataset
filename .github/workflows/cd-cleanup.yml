@@ -78,18 +78,15 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    # The temporary GHCR image is published by this repository.  Its workflow
-    # token is granted package-admin access, so no separate long-lived PAT is
-    # needed to delete the corresponding version.
-    permissions:
-      packages: write
-
     steps:
       - name: Delete temporary Docker image
         shell: bash
         env:
           GITHUB_API_URL: ${{ github.api_url }}
-          PACKAGE_TOKEN: ${{ github.token }}
+          # This org-scoped package does not grant package-admin access to the
+          # workflow token. GHCR_TOKEN must be a classic PAT with
+          # read:packages and delete:packages scopes, and package admin access.
+          PACKAGE_TOKEN: ${{ secrets.GHCR_TOKEN }}
           PACKAGE_OWNER: ${{ github.repository_owner }}
           PACKAGE_NAME: ${{ vars.IMAGE_NAME }}
           IMAGE_TAG: ${{ inputs.image_tag }}
