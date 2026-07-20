@@ -9,10 +9,8 @@ import yaml
 
 __all__ = [
     "UREG",
-    "HEIGHT_UNIT",
     "SHEAR_RATE_UNIT",
     "VISCOSITY_UNIT",
-    "GRAVITY_UNIT",
     "load_pv",
     "load_viscosity",
     "load_property",
@@ -20,10 +18,8 @@ __all__ = [
 
 
 UREG = pint.UnitRegistry()
-HEIGHT_UNIT = UREG.millimeter
 SHEAR_RATE_UNIT = UREG.second**-1
 VISCOSITY_UNIT = UREG.pascal * UREG.second
-GRAVITY_UNIT = UREG.standard_gravity
 
 
 PV_CONVERTERS = dict(

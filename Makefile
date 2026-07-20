@@ -9,6 +9,7 @@ all: dataset-v1
 
 dataset-v1: \
 datasets/v1/pv.csv \
+datasets/v1/pv.schema.json \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile).h5)) \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile)-Mean.h5))
 
@@ -44,5 +45,9 @@ _temp/v1/pv/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _data/v1
 datasets/v1/pv.csv: $(foreach dataset, $(DATASETS_v1), _temp/v1/pv/$(dataset).csv)
 	mkdir -p $(@D)
 	python3 -c "import pandas as pd; pd.concat([pd.read_csv(path) for path in '$^'.split(' ')]).to_csv('$@', index=False)"
+
+datasets/v1/pv.schema.json: config/v1/pv.schema.json
+	mkdir -p $(@D)
+	cp $< $@
 
 .SECONDARY:

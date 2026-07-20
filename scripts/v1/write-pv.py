@@ -5,16 +5,15 @@ import numpy as np
 import pandas as pd
 import yaml
 from unit import (
-    GRAVITY_UNIT,
-    HEIGHT_UNIT,
     SHEAR_RATE_UNIT,
+    UREG,
     VISCOSITY_UNIT,
     load_property,
     load_pv,
     load_viscosity,
 )
 
-parser = argparse.ArgumentParser(description="Write dimensionless process variables.")
+parser = argparse.ArgumentParser(description="Write process variables.")
 parser.add_argument("index", type=pathlib.Path, help="Experiment index CSV file")
 parser.add_argument(
     "viscosities",
@@ -56,11 +55,11 @@ properties = {path.stem: load_property(path) for path in args.properties.glob("*
 density = np.array([properties[s]["Density"] for s in pv["Slurry"]], dtype=object)
 
 # viscosity
-shear_rate = (pv["Speed"] / pv["Gap"]).apply(lambda x: x.to(SHEAR_RATE_UNIT).magnitude)
+shear_rate = (pv["Speed"] / pv["Gap"]).apply(lambda x: x.to(SHEAR_RATE_UNIT))
 viscosity = np.array(
     [
         np.interp(
-            sr,
+            sr.magnitude,
             list(reversed(viscosities[s]["shear rate"].apply(lambda x: x.magnitude))),
             list(reversed(viscosities[s]["viscosity"].apply(lambda x: x.magnitude))),
         )
@@ -73,39 +72,10 @@ viscosity = np.array(
 # surface tension
 st = np.array([properties[s]["SurfaceTension"] for s in pv["Slurry"]], dtype=object)
 
-# CONSTRUCT DIMENSIONLESS VARIABLES
 
-Rgt = pv["Speed"] * pv["Gap"] / pv["FlowRatePerWidth"]
-Ca = viscosity * pv["Speed"] / st
-Re = density * pv["Speed"] * pv["Gap"] / viscosity
-R_F = pv["Shim"] / pv["Gap"]
-R_Ld = pv["Ld"] / pv["Gap"]
-R_Lu = pv["Lu"] / pv["Gap"]
-
-# Construct characteristic lengths
-
-h_w = (pv["FlowRatePerWidth"] / pv["Speed"]).apply(
-    lambda x: x.to(HEIGHT_UNIT).magnitude
-)
-g = np.array([1 * GRAVITY_UNIT] * len(pv), dtype=object)
-l_c = [(x.to(HEIGHT_UNIT).magnitude) for x in ((st / (density * g)) ** 0.5)]
-
-
-def to_dimless(series):
-    return series.apply(lambda x: x.to_base_units().magnitude)
-
-
-fields = {
-    "Gap_to_thickness_ratio": to_dimless(Rgt),
-    "Capillary_number": to_dimless(Ca),
-    "Surface_tension": [x.magnitude for x in st],
-    "Reynolds_number": to_dimless(Re),
-    "Feed_slot_height_ratio": to_dimless(R_F),
-    "Downstream_lip_length_ratio": to_dimless(R_Ld),
-    "Upstream_lip_length_ratio": to_dimless(R_Lu),
-    "Wet_thickness": h_w,
-    "Capillary_length": l_c,
-}
+def format_quantity(quantity):
+    """Return a Pint-readable quantity string for CSV output."""
+    return str(quantity)
 
 
 SLURRY_DICT = dict(
@@ -114,13 +84,31 @@ SLURRY_DICT = dict(
     LowViscosity="G40",
     LowSurfaceTension="G40+IPA",
 )
-data = dict(Name=pv["Name"], Slurry=pv["Slurry"].apply(lambda x: SLURRY_DICT[x]))
-data.update(fields)
 
 with open(args.ca, "r") as f:
     ca_data = yaml.safe_load(f)
 contact_angles = [ca_data.get(s, float("nan")) for s in pv["Slurry"]]
-data["Contact_angle"] = contact_angles
+contact_angles = [angle * UREG.degree for angle in contact_angles]
+
+data = {
+    # Material identifiers and measured slurry properties.
+    "name": pv["Name"],
+    "slurry": pv["Slurry"].apply(lambda x: SLURRY_DICT[x]),
+    "contact_angle": [format_quantity(angle) for angle in contact_angles],
+    "viscosity": [format_quantity(value) for value in viscosity],
+    "density": [format_quantity(value) for value in density],
+    "shear_rate": [format_quantity(value) for value in shear_rate],
+    "surface_tension": [format_quantity(value) for value in st],
+    # Process conditions from the experiment index.
+    "flow_rate_per_width": [format_quantity(value) for value in pv["FlowRatePerWidth"]],
+    "speed": [format_quantity(value) for value in pv["Speed"]],
+    "width": [format_quantity(value) for value in pv["Width"]],
+    "gap": [format_quantity(value) for value in pv["Gap"]],
+    "downstream_lip_length": [format_quantity(value) for value in pv["Ld"]],
+    "upstream_lip_length": [format_quantity(value) for value in pv["Lu"]],
+    "shim": [format_quantity(value) for value in pv["Shim"]],
+    "date": pv["Date"].dt.strftime("%Y-%m-%d"),
+}
 
 df = pd.DataFrame(data)
 df.to_csv(args.out, index=False)
