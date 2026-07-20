@@ -28,7 +28,7 @@ spec:
             secretName: gmail-smtp-relay
       containers:
         - name: build
-          image: docker.io/python:3.13
+          image: ${DOCKER_REGISTRY}/${DOCKER_NAMESPACE}/${IMAGE_NAME}:${IMAGE_TAG}
           imagePullPolicy: Always
           resources:
             requests:

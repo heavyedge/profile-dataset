@@ -16,7 +16,7 @@ def env(name, default=""):
 
 class BuildStatus(IntEnum):
     SUCCESS = 0
-    FAILED = 1
+    FETCH_REPO_FAILED = 1
 
 
 class DeployStatus(IntEnum):

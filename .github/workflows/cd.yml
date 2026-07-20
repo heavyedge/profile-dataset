@@ -12,8 +12,56 @@ on:
 
 permissions:
   checks: write
+  packages: write
 
 jobs:
+
+  build-image:
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      tag: ${{ steps.image-metadata.outputs.tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Set Docker image metadata
+        id: image-metadata
+        shell: bash
+        env:
+          GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          echo "tag=${GIT_SHA::7}-${RUN_ID}-${RUN_ATTEMPT}-dev" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push temporary Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          target: dev
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha,scope=profile-dataset-dev
+          cache-to: type=gha,mode=max,scope=profile-dataset-dev
+          tags: ghcr.io/${{ github.repository_owner }}/${{ vars.IMAGE_NAME }}:${{ steps.image-metadata.outputs.tag }}
 
   resolve-variables:
 
@@ -165,6 +213,7 @@ jobs:
   deploy:
 
     needs:
+      - build-image
       - resolve-variables
       - create-checks
 
@@ -185,6 +234,20 @@ jobs:
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
+
+      - name: Create Docker secrets
+        env:
+          DOCKER_REGISTRY: ghcr.io
+          DOCKER_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.GHCR_TOKEN }}
+          KUBE_NAMESPACE: ${{ secrets.KUBE_NAMESPACE }}
+        run: |
+          kubectl create secret docker-registry regcred \
+            --docker-server="$DOCKER_REGISTRY" \
+            --docker-username="$DOCKER_USERNAME" \
+            --docker-password="$DOCKER_PASSWORD" \
+            --namespace="$KUBE_NAMESPACE" \
+            --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Create Gmail relay secret
         env:
@@ -227,6 +290,10 @@ jobs:
           KUBE_USERNAME: ${{ secrets.KUBE_USERNAME }}
           MLXP_ZONE: ${{ secrets.MLXP_ZONE }}
           CPU_REQUEST: ${{ needs.resolve-variables.outputs.dataset_mode == 'test' && '1' || '2' }}
+          DOCKER_REGISTRY: ghcr.io
+          DOCKER_NAMESPACE: ${{ github.repository_owner }}
+          IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+          IMAGE_TAG: ${{ needs.build-image.outputs.tag }}
           DATASET_MODE: ${{ needs.resolve-variables.outputs.dataset_mode }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
           GITHUB_DISPATCH_REF: ${{ github.head_ref || github.ref_name }}
