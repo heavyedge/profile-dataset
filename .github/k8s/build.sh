@@ -10,7 +10,7 @@ case "${DATASET_MODE}" in
   test)
     make_targets="test examples"
     ;;
-  reuse)
+  post)
     if [ -z "${DATASET_REVISION:-}" ] || [ -z "${DATASET_REPO_ID:-}" ]; then
       echo "::error::Missing Hugging Face dataset revision or repository." >&2
       exit 2
@@ -19,6 +19,12 @@ case "${DATASET_MODE}" in
       echo "::error::Missing Hugging Face token for dataset download." >&2
       exit 2
     fi
+
+    dataset_overlay_dir="$(mktemp -d)"
+    trap 'rm -rf "$dataset_overlay_dir"' EXIT INT TERM
+    if [ -d datasets ]; then
+      cp -a datasets/. "$dataset_overlay_dir/"
+    fi
     if ! hf download "${DATASET_REPO_ID}" \
         --repo-type dataset \
         --revision "${DATASET_REVISION}" \
@@ -26,9 +32,11 @@ case "${DATASET_MODE}" in
         --local-dir datasets; then
       exit 2
     fi
+    cp -a "$dataset_overlay_dir/." datasets/
+    rm -rf datasets/.cache/huggingface
     make_targets="examples"
     ;;
-  release)
+  release|development)
     make_targets="all"
     ;;
   *)

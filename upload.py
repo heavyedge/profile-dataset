@@ -22,9 +22,6 @@ except InvalidVersion:
     print(f"Invalid model version tag: {args.tag}", file=sys.stderr)
     sys.exit(1)
 
-if version.post is not None:
-    print(f"Skipping Hugging Face upload for post release tag: {args.tag}")
-    sys.exit(1)
 if version.dev is not None:
     print(f"Skipping Hugging Face upload for dev release tag: {args.tag}")
     sys.exit(1)

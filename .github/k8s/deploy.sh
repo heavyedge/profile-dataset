@@ -90,7 +90,7 @@ upload_release_examples() (
 )
 
 status=0
-if [ "${DATASET_MODE}" = "release" ]; then
+if [ "${DATASET_MODE}" = "release" ] || [ "${DATASET_MODE}" = "post" ]; then
   if [ -z "${GITHUB_REF_NAME:-}" ]; then
     echo "::error::Missing GITHUB_REF_NAME for dataset upload." >&2
     status=1

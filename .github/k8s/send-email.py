@@ -157,7 +157,7 @@ def build_message(
 
     dataset_mode = env("DATASET_MODE", "test")
     body_lines.append(f"Dry build: {int(dataset_mode == 'test')}")
-    body_lines.append(f"Push dataset: {int(dataset_mode == 'release')}")
+    body_lines.append(f"Push dataset: {int(dataset_mode in ('release', 'post'))}")
 
     msg = EmailMessage()
     msg["From"] = env("SMTP_NOTIFY_SENDER", "heavyedge-bot@users.noreply.github.com")

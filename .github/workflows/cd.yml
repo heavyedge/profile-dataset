@@ -194,7 +194,7 @@ jobs:
                 ['build-check-run-id', 'Build', 'Build is queued.'],
                 ['cleanup-check-run-id', 'CD Cleanup', 'CD cleanup is queued.'],
               ];
-              if (process.env.DATASET_MODE === 'release') {
+              if (['release', 'post'].includes(process.env.DATASET_MODE)) {
                 checks.push(['upload-dataset-check-run-id', 'Upload dataset', 'Dataset upload is queued.']);
               }
               if (process.env.EVENT_NAME === 'release') {

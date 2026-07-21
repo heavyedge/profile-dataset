@@ -104,16 +104,14 @@ spec:
 
               dataset_revision=
               dataset_repo_id=
-              if [ "$DATASET_MODE" = "release" ] && [ "$upload_dataset_conclusion" = "success" ]; then
+              if { [ "$DATASET_MODE" = "release" ] || [ "$DATASET_MODE" = "post" ]; } &&
+                [ "$upload_dataset_conclusion" = "success" ]; then
                 dataset_metadata_file="${DATASET_UPLOAD_METADATA_FILE:-/tmp/dataset-upload-metadata.json}"
                 if ! dataset_revision="$(python -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["dataset_revision"])' "$dataset_metadata_file")" ||
                   ! dataset_repo_id="$(python -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["dataset_repo"])' "$dataset_metadata_file")"; then
                   dataset_revision=
                   dataset_repo_id=
                 fi
-              elif [ "$DATASET_MODE" = "reuse" ] && [ "$build_status" -eq 0 ]; then
-                dataset_revision="${DATASET_REVISION:-}"
-                dataset_repo_id="${DATASET_REPO_ID:-}"
               fi
               export DATASET_REVISION="$dataset_revision"
               export DATASET_REPO_ID="$dataset_repo_id"

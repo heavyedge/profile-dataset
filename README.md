@@ -47,7 +47,9 @@ This repository follows semantic versioning with [Python version specifiers](htt
 N.N.N[{a|b|rc}N][.postN][.devN]
 ```
 
-Datasets are uploaded to HuggingFace repository only when the final relase or the pre-release are made.
+- On final release and pre-release (`N.N.N[{a|b|rc}N]`), dataset is re-built and deployed to HuggingFace.
+- On post-release (`*.postN`), dataset is deployed to HuggingFace without re-building.
+- On developmental release (`*.devN`), dataset is not deployed to HuggingFace.
 
 > **NOTE** : Major version is raised only when the dataset is changed in backwards incompatible way.
 > When a new version of dataset is added, minor version is raised with new `dataset/v*` directory.
