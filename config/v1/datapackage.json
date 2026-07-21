@@ -19,6 +19,57 @@
       "mediatype": "application/vnd.hdfgroup.hdf5"
     },
     {
+      "name": "contact_angles",
+      "type": "table",
+      "path": "contact_angles/",
+      "schema": {
+        "primaryKey": "name",
+        "missingValues": [""],
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Unique contact-angle measurement identifier in file/row format.",
+            "constraints": {"required": true, "unique": true}
+          },
+          {
+            "name": "contact_angle",
+            "type": "number",
+            "unit": "degree",
+            "description": "Average measured contact angle."
+          },
+          {
+            "name": "left_angle",
+            "type": "number",
+            "unit": "degree",
+            "description": "Measured left contact angle."
+          },
+          {
+            "name": "right_angle",
+            "type": "number",
+            "unit": "degree",
+            "description": "Measured right contact angle."
+          },
+          {
+            "name": "record_date",
+            "type": "date",
+            "format": "%Y-%m-%d",
+            "description": "Measurement date in ISO 8601 calendar-date form."
+          },
+          {
+            "name": "record_time",
+            "type": "time",
+            "format": "%H:%M:%S",
+            "description": "Measurement time."
+          }
+        ]
+      },
+      "title": "Contact angle measurements",
+      "description": "Contact angle measurements recorded from contact-angle experiments.",
+      "format": "csv",
+      "mediatype": "text/csv"
+    },
+    {
       "name": "pv",
       "type": "table",
       "path": "pv.csv",

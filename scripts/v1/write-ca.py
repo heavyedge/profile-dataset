@@ -13,8 +13,9 @@ args = parser.parse_args()
 data = dict()
 for path, slurry in zip(args.ca, args.slurries):
     ca = pd.read_csv(path)
+    ca["file"] = ca["name"].str.rsplit("/", n=1).str[0]
     first_rows = ca.groupby("file", sort=False).first()
-    data[str(slurry)] = float(first_rows["Contact Angle(Average)[degree]"].mean())
+    data[str(slurry)] = float(first_rows["contact_angle"].mean())
 
 with open(args.out, "w") as f:
     yaml.dump(data, f)

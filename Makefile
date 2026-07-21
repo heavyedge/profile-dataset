@@ -2,6 +2,7 @@
 
 DATASETS_v1 := $(shell ls -d _data/v1/profiles/dataset* | xargs -n 1 basename)
 PROFILES_v1 = $(shell ls _data/v1/profiles/$(1)/*.tar.gz | xargs -n 1 basename -s .tar.gz)
+SLURRIES_v1 := G50 G45 G40 G40IPA
 
 .PHONY: all dataset-v1 examples test clean
 
@@ -9,6 +10,7 @@ all: dataset-v1 examples
 
 dataset-v1: \
 datasets/v1/pv.csv \
+$(foreach slurry,$(SLURRIES_v1),datasets/v1/contact_angles/$(slurry).csv) \
 datasets/v1/datapackage.json \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile).h5)) \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile)-Mean.h5))
@@ -40,11 +42,11 @@ datasets/v1/datapackage.json: config/v1/datapackage.json
 	mkdir -p $(@D)
 	cp $< $@
 
-_temp/v1/%-contact_angle.csv: scripts/v1/read-ca.py _data/v1/ca/%
+datasets/v1/contact_angles/%.csv: scripts/v1/read-ca.py _data/v1/ca/%
 	mkdir -p $(@D)
 	python3 $^ -o $@
 
-_temp/v1/ContactAngles.yml: scripts/v1/write-ca.py  _temp/v1/G50-contact_angle.csv _temp/v1/G45-contact_angle.csv _temp/v1/G40-contact_angle.csv _temp/v1/G40IPA-contact_angle.csv
+_temp/v1/ContactAngles.yml: scripts/v1/write-ca.py datasets/v1/contact_angles/G50.csv datasets/v1/contact_angles/G45.csv datasets/v1/contact_angles/G40.csv datasets/v1/contact_angles/G40IPA.csv
 	mkdir -p $(@D)
 	python3 $^ --slurries HighViscosity Standard LowViscosity LowSurfaceTension -o $@
 
@@ -59,7 +61,7 @@ datasets/v1/pv.csv: $(foreach dataset, $(DATASETS_v1), _temp/v1/pv/$(dataset).cs
 examples/v1/profile.ipynb: datasets/v1/profiles/dataset1/001.h5 datasets/v1/profiles/dataset1/001-Mean.h5
 	jupyter nbconvert --to notebook --execute --inplace $@
 
-examples/v1/contact_angle.ipynb: _temp/v1/G50-contact_angle.csv _temp/v1/G45-contact_angle.csv _temp/v1/G40-contact_angle.csv _temp/v1/G40IPA-contact_angle.csv
+examples/v1/contact_angle.ipynb: datasets/v1/contact_angles/G50.csv datasets/v1/contact_angles/G45.csv datasets/v1/contact_angles/G40.csv datasets/v1/contact_angles/G40IPA.csv
 	jupyter nbconvert --to notebook --execute --inplace $@
 
 .SECONDARY:
