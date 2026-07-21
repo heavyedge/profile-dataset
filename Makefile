@@ -40,7 +40,11 @@ datasets/v1/datapackage.json: config/v1/datapackage.json
 	mkdir -p $(@D)
 	cp $< $@
 
-_temp/v1/ContactAngles.yml: scripts/v1/write-ca.py  _data/v1/ca/G50 _data/v1/ca/G45 _data/v1/ca/G40 _data/v1/ca/G40IPA
+_temp/v1/%-contact_angle.csv: scripts/v1/read-ca.py _data/v1/ca/%
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
+_temp/v1/ContactAngles.yml: scripts/v1/write-ca.py  _temp/v1/G50-contact_angle.csv _temp/v1/G45-contact_angle.csv _temp/v1/G40-contact_angle.csv _temp/v1/G40IPA-contact_angle.csv
 	mkdir -p $(@D)
 	python3 $^ --slurries HighViscosity Standard LowViscosity LowSurfaceTension -o $@
 
@@ -52,7 +56,7 @@ datasets/v1/pv.csv: $(foreach dataset, $(DATASETS_v1), _temp/v1/pv/$(dataset).cs
 	mkdir -p $(@D)
 	python3 -c "import pandas as pd; pd.concat([pd.read_csv(path) for path in '$^'.split(' ')]).to_csv('$@', index=False)"
 
-examples/v1/contact_angle.ipynb: _data/v1/ca/G50 _data/v1/ca/G45 _data/v1/ca/G40 _data/v1/ca/G40IPA
+examples/v1/contact_angle.ipynb: _temp/v1/G50-contact_angle.csv _temp/v1/G45-contact_angle.csv _temp/v1/G40-contact_angle.csv _temp/v1/G40IPA-contact_angle.csv
 	jupyter nbconvert --to notebook --execute --inplace $@
 
 .SECONDARY:
