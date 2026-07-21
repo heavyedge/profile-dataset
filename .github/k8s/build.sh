@@ -6,11 +6,9 @@ if ! ./setup.sh; then
   exit 1
 fi
 
-make_targets="test"
 case "${DATASET_MODE}" in
-  test) ;;
-  release)
-    make_targets="all"
+  test)
+    make_targets="test examples"
     ;;
   reuse)
     if [ -z "${DATASET_REVISION:-}" ] || [ -z "${DATASET_REPO_ID:-}" ]; then
@@ -28,6 +26,10 @@ case "${DATASET_MODE}" in
         --local-dir datasets; then
       exit 2
     fi
+    make_targets="examples"
+    ;;
+  release)
+    make_targets="all"
     ;;
   *)
     echo "::error::Unsupported dataset mode: ${DATASET_MODE}" >&2

@@ -5,7 +5,7 @@ PROFILES_v1 = $(shell ls _data/v1/profiles/$(1)/*.tar.gz | xargs -n 1 basename -
 
 .PHONY: all dataset-v1 examples test clean
 
-all: dataset-v1
+all: dataset-v1 examples
 
 dataset-v1: \
 datasets/v1/pv.csv \

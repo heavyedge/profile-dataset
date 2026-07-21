@@ -22,7 +22,6 @@ Each `datasets/v*` directory stores preprocessed profiles from the corresponding
 ## Building the notebooks
 
 ```sh
-pip install -r notebooks/requirements.txt
 make examples
 ```
 
