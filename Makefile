@@ -63,6 +63,10 @@ datasets/v1/contact_angles/%.csv: scripts/v1/read-ca.py _data/v1/ca/%
 	mkdir -p $(@D)
 	python3 $^ -o $@
 
+_temp/v1/Viscosities.csv: datasets/v1/viscosities/G50.csv datasets/v1/viscosities/G45.csv datasets/v1/viscosities/G40.csv datasets/v1/viscosities/G40IPA.csv
+	mkdir -p $(@D)
+	python3 -c "from pathlib import Path; import pandas as pd; paths = '$^'.split(' '); slurries = [Path(path).stem for path in paths]; dfs = [pd.read_csv(path).assign(slurry=slurry) for path, slurry in zip(paths, slurries)]; pd.concat(dfs, keys=slurries, names=['slurry']).to_csv('$@', index=False)"
+
 _temp/v1/ContactAngles.yml: scripts/v1/write-ca.py datasets/v1/contact_angles/G50.csv datasets/v1/contact_angles/G45.csv datasets/v1/contact_angles/G40.csv datasets/v1/contact_angles/G40IPA.csv
 	mkdir -p $(@D)
 	python3 $^ --slurries HighViscosity Standard LowViscosity LowSurfaceTension -o $@
