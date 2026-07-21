@@ -56,6 +56,9 @@ datasets/v1/pv.csv: $(foreach dataset, $(DATASETS_v1), _temp/v1/pv/$(dataset).cs
 	mkdir -p $(@D)
 	python3 -c "import pandas as pd; pd.concat([pd.read_csv(path) for path in '$^'.split(' ')]).to_csv('$@', index=False)"
 
+examples/v1/profile.ipynb: datasets/v1/profiles/dataset1/001.h5 datasets/v1/profiles/dataset1/001-Mean.h5
+	jupyter nbconvert --to notebook --execute --inplace $@
+
 examples/v1/contact_angle.ipynb: _temp/v1/G50-contact_angle.csv _temp/v1/G45-contact_angle.csv _temp/v1/G40-contact_angle.csv _temp/v1/G40IPA-contact_angle.csv
 	jupyter nbconvert --to notebook --execute --inplace $@
 
