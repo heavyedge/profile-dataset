@@ -164,6 +164,7 @@ jobs:
     outputs:
       build-check-run-id: ${{ steps.deploy-checks.outputs.build-check-run-id }}
       upload-dataset-check-run-id: ${{ steps.deploy-checks.outputs.upload-dataset-check-run-id }}
+      upload-artifact-check-run-id: ${{ steps.deploy-checks.outputs.upload-artifact-check-run-id }}
       cleanup-check-run-id: ${{ steps.deploy-checks.outputs.cleanup-check-run-id }}
 
     runs-on: ubuntu-latest
@@ -184,8 +185,8 @@ jobs:
         env:
           GITHUB_RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          MODEL_MODE: ${{ needs.resolve-variables.outputs.model_mode }}
-          PUSH_DOC: ${{ needs.resolve-variables.outputs.push_doc }}
+          DATASET_MODE: ${{ needs.resolve-variables.outputs.dataset_mode }}
+          EVENT_NAME: ${{ github.event_name }}
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
@@ -193,8 +194,11 @@ jobs:
                 ['build-check-run-id', 'Build', 'Build is queued.'],
                 ['cleanup-check-run-id', 'CD Cleanup', 'CD cleanup is queued.'],
               ];
-              if (process.env.MODEL_MODE === 'release') {
+              if (process.env.DATASET_MODE === 'release') {
                 checks.push(['upload-dataset-check-run-id', 'Upload dataset', 'Dataset upload is queued.']);
+              }
+              if (process.env.EVENT_NAME === 'release') {
+                checks.push(['upload-artifact-check-run-id', 'Upload release artifact', 'Release artifact upload is queued.']);
               }
 
               for (const [outputName, checkName, summary] of checks) {
@@ -343,6 +347,7 @@ jobs:
           SMTP_NOTIFY_RECIPIENT: ${{ needs.resolve-variables.outputs.email_recipient }}
           BUILD_CHECK_RUN_ID: ${{ needs.create-checks.outputs.build-check-run-id }}
           UPLOAD_DATASET_CHECK_RUN_ID: ${{ needs.create-checks.outputs.upload-dataset-check-run-id }}
+          UPLOAD_ARTIFACT_CHECK_RUN_ID: ${{ needs.create-checks.outputs.upload-artifact-check-run-id }}
           CLEANUP_CHECK_RUN_ID: ${{ needs.create-checks.outputs.cleanup-check-run-id }}
         run: |
           job_name="heavyedge-profile-dataset-${GIT_SHA::7}-${RUN_ID}-${RUN_ATTEMPT}"
@@ -390,9 +395,11 @@ jobs:
           GITHUB_DISPATCH_REF: ${{ github.head_ref || github.ref_name }}
           BUILD_CHECK_RUN_ID: ${{ needs.create-checks.outputs.build-check-run-id }}
           UPLOAD_DATASET_CHECK_RUN_ID: ${{ needs.create-checks.outputs.upload-dataset-check-run-id }}
+          UPLOAD_ARTIFACT_CHECK_RUN_ID: ${{ needs.create-checks.outputs.upload-artifact-check-run-id }}
           CLEANUP_CHECK_RUN_ID: ${{ needs.create-checks.outputs.cleanup-check-run-id }}
           IMAGE_TAG: ${{ needs.build-image.outputs.tag }}
           BUILD_CONCLUSION: failure
           UPLOAD_DATASET_CONCLUSION: failure
+          UPLOAD_ARTIFACT_CONCLUSION: failure
         run: |
           sh .github/scripts/deploy-dispatch.sh

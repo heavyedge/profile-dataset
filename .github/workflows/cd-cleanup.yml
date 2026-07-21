@@ -21,6 +21,12 @@ on:
       upload_dataset_conclusion:
         required: true
         type: string
+      upload_artifact_check_run_id:
+        required: false
+        type: string
+      upload_artifact_conclusion:
+        required: true
+        type: string
       image_tag:
         required: true
         type: string
@@ -115,12 +121,15 @@ jobs:
           BUILD_CONCLUSION: ${{ inputs.build_conclusion }}
           UPLOAD_DATASET_CHECK_RUN_ID: ${{ inputs.upload_dataset_check_run_id }}
           UPLOAD_DATASET_CONCLUSION: ${{ inputs.upload_dataset_conclusion }}
+          UPLOAD_ARTIFACT_CHECK_RUN_ID: ${{ inputs.upload_artifact_check_run_id }}
+          UPLOAD_ARTIFACT_CONCLUSION: ${{ inputs.upload_artifact_conclusion }}
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const checks = [
               [process.env.BUILD_CHECK_RUN_ID, process.env.BUILD_CONCLUSION],
               [process.env.UPLOAD_DATASET_CHECK_RUN_ID, process.env.UPLOAD_DATASET_CONCLUSION],
+              [process.env.UPLOAD_ARTIFACT_CHECK_RUN_ID, process.env.UPLOAD_ARTIFACT_CONCLUSION],
             ].filter(([checkRunId]) => checkRunId);
             const allowedConclusions = new Set(['success', 'failure']);
 
