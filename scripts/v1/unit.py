@@ -41,12 +41,21 @@ def load_pv(path):
 
 
 def load_viscosity(path):
+    df = pd.read_csv(path)
+    shear_rate_column = next(
+        (column for column in ("shear_rate", "shear rate") if column in df.columns),
+        None,
+    )
+    if shear_rate_column is None:
+        raise ValueError(f"No shear-rate column found in {path}")
+    if "viscosity" not in df.columns:
+        raise ValueError(f"No viscosity column found in {path}")
+
     converters = {
-        "shear rate": lambda x: (float(x) * SHEAR_RATE_UNIT),
+        shear_rate_column: lambda x: (float(x) * SHEAR_RATE_UNIT),
         "viscosity": lambda x: (float(x) * VISCOSITY_UNIT),
     }
-    df = pd.read_csv(path, converters=converters)
-    return df
+    return pd.read_csv(path, converters=converters)
 
 
 def load_property(path):

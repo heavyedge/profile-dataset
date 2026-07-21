@@ -8,10 +8,10 @@ import pandas as pd
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
-def plot_ca(ca_files, labels, ca_img=None):
+def plot_ca(ca_files, ca_img=None):
     fig, ax = plt.subplots()
 
-    for path, label in zip(ca_files, labels):
+    for path in ca_files:
         df = pd.read_csv(path, index_col="name")
         df["file"] = (
             df.index.to_series().astype(str).str.rsplit("/", n=1).str[0].to_numpy()
@@ -39,7 +39,7 @@ def plot_ca(ca_files, labels, ca_img=None):
             y_mean,
             yerr=y_std,
             fmt="-",
-            label=label,
+            label=path.stem,
             capsize=3,
             elinewidth=0.8,
             errorevery=max(1, len(t_ref) // 20),
@@ -67,12 +67,11 @@ def plot_ca(ca_files, labels, ca_img=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Write contact angle data.")
+    parser = argparse.ArgumentParser(description="Plot contact angle data.")
     parser.add_argument("ca", type=pathlib.Path, nargs="*", help="csv files")
-    parser.add_argument("--slurries", nargs="*", help="Slurry names")
     parser.add_argument("--img", type=pathlib.Path, help="Example image file")
     parser.add_argument("-o", "--out", type=pathlib.Path, help="Output image file")
     args = parser.parse_args()
-    fig = plot_ca(args.ca, args.slurries, args.img)
+    fig = plot_ca(args.ca, args.img)
     if args.out:
         fig.savefig(args.out)

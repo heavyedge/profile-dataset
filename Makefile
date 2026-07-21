@@ -11,6 +11,7 @@ all: dataset-v1 examples
 dataset-v1: \
 datasets/v1/pv.csv \
 $(foreach slurry,$(SLURRIES_v1),datasets/v1/contact_angles/$(slurry).csv) \
+$(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosities/$(slurry).csv) \
 datasets/v1/datapackage.json \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile).h5)) \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile)-Mean.h5))
@@ -42,15 +43,35 @@ datasets/v1/datapackage.json: config/v1/datapackage.json
 	mkdir -p $(@D)
 	cp $< $@
 
+datasets/v1/viscosities/G50.csv: scripts/v1/write-viscosity.py _data/v1/SlurryViscosities/Ascending/high_viscosity.csv _data/v1/SlurryViscosities/Descending/high_viscosity.csv
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
+datasets/v1/viscosities/G45.csv: scripts/v1/write-viscosity.py _data/v1/SlurryViscosities/Ascending/standard_viscosity.csv _data/v1/SlurryViscosities/Descending/standard_viscosity.csv
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
+datasets/v1/viscosities/G40.csv: scripts/v1/write-viscosity.py _data/v1/SlurryViscosities/Ascending/low_viscosity.csv _data/v1/SlurryViscosities/Descending/low_viscosity.csv
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
+datasets/v1/viscosities/G40IPA.csv: scripts/v1/write-viscosity.py _data/v1/SlurryViscosities/Ascending/low_surface_tension.csv _data/v1/SlurryViscosities/Descending/low_surface_tension.csv
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
 datasets/v1/contact_angles/%.csv: scripts/v1/read-ca.py _data/v1/ca/%
 	mkdir -p $(@D)
 	python3 $^ -o $@
+
+_temp/v1/Viscosities.csv: datasets/v1/viscosities/G50.csv datasets/v1/viscosities/G45.csv datasets/v1/viscosities/G40.csv datasets/v1/viscosities/G40IPA.csv
+	mkdir -p $(@D)
+	python3 -c "from pathlib import Path; import pandas as pd; paths = '$^'.split(' '); slurries = [Path(path).stem for path in paths]; dfs = [pd.read_csv(path).assign(slurry=slurry) for path, slurry in zip(paths, slurries)]; pd.concat(dfs, keys=slurries, names=['slurry']).to_csv('$@', index=False)"
 
 _temp/v1/ContactAngles.yml: scripts/v1/write-ca.py datasets/v1/contact_angles/G50.csv datasets/v1/contact_angles/G45.csv datasets/v1/contact_angles/G40.csv datasets/v1/contact_angles/G40IPA.csv
 	mkdir -p $(@D)
 	python3 $^ --slurries HighViscosity Standard LowViscosity LowSurfaceTension -o $@
 
-_temp/v1/pv/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _data/v1/SlurryViscosities/Descending _data/v1/SlurryProperties _temp/v1/ContactAngles.yml datasets/v1/datapackage.json
+_temp/v1/pv/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _temp/v1/Viscosities.csv _data/v1/SlurryProperties _temp/v1/ContactAngles.yml datasets/v1/datapackage.json
 	mkdir -p $(@D)
 	python3 $^ --dataset=$* -o $@
 
@@ -62,6 +83,12 @@ examples/v1/profile.ipynb: datasets/v1/profiles/dataset1/001.h5 datasets/v1/prof
 	jupyter nbconvert --to notebook --execute --inplace $@
 
 examples/v1/contact_angle.ipynb: datasets/v1/contact_angles/G50.csv datasets/v1/contact_angles/G45.csv datasets/v1/contact_angles/G40.csv datasets/v1/contact_angles/G40IPA.csv
+	jupyter nbconvert --to notebook --execute --inplace $@
+
+examples/v1/viscosity.ipynb: datasets/v1/viscosities/G50.csv datasets/v1/viscosities/G45.csv datasets/v1/viscosities/G40.csv datasets/v1/viscosities/G40IPA.csv datasets/v1/pv.csv
+	jupyter nbconvert --to notebook --execute --inplace $@
+
+examples/v1/dimless.ipynb: datasets/v1/pv.csv datasets/v1/datapackage.json
 	jupyter nbconvert --to notebook --execute --inplace $@
 
 .SECONDARY:
