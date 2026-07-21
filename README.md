@@ -23,6 +23,7 @@ Each `datasets/v*` directory stores preprocessed profiles from the corresponding
 
 ```sh
 pip install -r notebooks/requirements.txt
+make examples
 ```
 
 ## Contributing
@@ -32,6 +33,7 @@ pip install -r notebooks/requirements.txt
 Configure the local git filter (run once after cloning):
 
 ```sh
+nbstripout --install --attributes .gitattributes
 git config filter.nbstripout.clean "nbstripout"
 git config filter.nbstripout.smudge cat
 git config filter.nbstripout.required true
