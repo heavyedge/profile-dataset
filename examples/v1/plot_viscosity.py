@@ -4,17 +4,29 @@ import pathlib
 import matplotlib.pyplot as plt
 import pandas as pd
 
+MARKERS = dict(
+    G50="o",
+    G45="v",
+    G40="^",
+    G40IPA="s",
+)
+
 
 def plot_viscosity(viscosity_files):
     fig, ax = plt.subplots()
 
     for path in viscosity_files:
         df = pd.read_csv(path)
+        descending = df["sweep_direction"] == "descending"
         ax.loglog(
-            df["shear_rate"].values,
-            df["viscosity"].values,
+            df["shear_rate"][descending].values,
+            df["viscosity"][descending].values,
+            marker=MARKERS[path.stem],
             label=path.stem,
         )
+    ax.set_xlabel("Shear Rate (1/s)")
+    ax.set_ylabel("Viscosity (Pa·s)")
+    ax.legend()
     return fig
 
 
