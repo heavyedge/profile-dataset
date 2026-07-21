@@ -62,6 +62,53 @@ jobs:
       - name: test
         run: make test
 
+  find-notebooks:
+
+      runs-on: ubuntu-latest
+
+      outputs:
+        notebooks: ${{ steps.list.outputs.notebooks }}
+
+      steps:
+
+        - name: get repo
+          uses: actions/checkout@v3
+
+        - name: list notebooks
+          id: list
+          run: |
+            notebooks=$(find examples -name "*.ipynb" | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            echo "notebooks=$notebooks" >> $GITHUB_OUTPUT
+
+  build-notebooks:
+
+      needs: find-notebooks
+
+      runs-on: ubuntu-latest
+
+      strategy:
+        fail-fast: false
+        matrix:
+          notebook: ${{ fromJson(needs.find-notebooks.outputs.notebooks) }}
+
+      steps:
+
+      - name: get repo
+        uses: actions/checkout@v3
+
+      - name: set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: set up the environment
+        run: ./setup.sh && uv pip install --system -r examples/requirements.txt
+        env:
+          PROFILES_V1_GDRIVE: ${{ secrets.PROFILES_V1_GDRIVE }}
+          CA_V1_GDRIVE: ${{ secrets.CA_V1_GDRIVE }}
+
+      - run: make ${{ matrix.notebook }}
+
   image-dev:
 
     runs-on: ubuntu-latest
