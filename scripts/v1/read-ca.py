@@ -33,11 +33,11 @@ df_combined["name"] = (
 )
 df_combined = df_combined.drop(columns=["file", "row"]).set_index("name")
 
-fields = [
-    "Contact Angle(Average)[degree]",
-    "Left Angle[degree]",
-    "Right Angle[degree]",
-    "Rec. Date",
-    "Rec. Time",
-]
-df_combined[fields].to_csv(args.out)
+fields = {
+    "Contact Angle(Average)[degree]": "contact_angle",
+    "Left Angle[degree]": "left_angle",
+    "Right Angle[degree]": "right_angle",
+    "Rec. Date": "record_date",
+    "Rec. Time": "record_time",
+}
+df_combined.rename(columns=fields)[list(fields.values())].to_csv(args.out)

@@ -19,10 +19,10 @@ def plot_ca(ca_files, labels, ca_img=None):
 
         all_t, all_y = [], []
         for _, subdf in df.groupby("file"):
-            t = pd.to_timedelta(subdf["Rec. Time"]).dt.total_seconds()
+            t = pd.to_timedelta(subdf["record_time"]).dt.total_seconds()
             t = t - t.iloc[0]
             all_t.append(t.values)
-            all_y.append(subdf["Contact Angle(Average)[degree]"].values)
+            all_y.append(subdf["contact_angle"].values)
 
         t_ref = np.unique(np.concatenate(all_t))
         y_interp = np.array(
