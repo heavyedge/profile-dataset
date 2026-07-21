@@ -25,7 +25,7 @@ jobs:
 
       - name: install dependencies
         run: |
-          uv pip install --system flake8 black isort
+          uv pip install --system flake8 "black[jupyter]" isort
 
       - name: lint with flake8
         run: |
