@@ -80,9 +80,11 @@ jobs:
               "$KUBERNETES_JOB_NAME" "$status" >> "$raw_log_file"
           fi
 
-          python3 .github/scripts/redact-log.py "$raw_log_file" "$redacted_log_file" \
-            --template-file .github/k8s/job.yaml \
-            --secret-env KUBE_CONFIG
+          if ! python3 .github/scripts/redact-log.py "$raw_log_file" "$redacted_log_file" --template-file .github/k8s/job.yaml; then
+            echo "Log collection skipped because the log could not be safely redacted." >&2
+            rm -f "$raw_log_file" "$redacted_log_file"
+            exit 0
+          fi
           rm -f "$raw_log_file"
 
       - name: Upload Kubernetes Job log
@@ -90,7 +92,7 @@ jobs:
         with:
           name: kubernetes-job-log-${{ inputs.kubernetes_job_name || github.run_id }}
           path: ${{ runner.temp }}/kubernetes-job.log
-          if-no-files-found: error
+          if-no-files-found: ignore
 
   update-deploy-checks:
 
