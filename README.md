@@ -19,7 +19,27 @@ make
 
 Each `datasets/v*` directory stores preprocessed profiles from the corresponding major version of raw profile dataset.
 
-## Versioning policy
+## Building the notebooks
+
+```sh
+pip install -r notebooks/requirements.txt
+make examples
+```
+
+## Contributing
+
+### Configuring git
+
+Configure the local git filter (run once after cloning):
+
+```sh
+nbstripout --install --attributes .gitattributes
+git config filter.nbstripout.clean "nbstripout"
+git config filter.nbstripout.smudge cat
+git config filter.nbstripout.required true
+```
+
+### Versioning policy
 
 This repository follows semantic versioning with [Python version specifiers](https://packaging.python.org/en/latest/specifications/version-specifiers/):
 

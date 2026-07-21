@@ -3,7 +3,7 @@
 DATASETS_v1 := $(shell ls -d _data/v1/profiles/dataset* | xargs -n 1 basename)
 PROFILES_v1 = $(shell ls _data/v1/profiles/$(1)/*.tar.gz | xargs -n 1 basename -s .tar.gz)
 
-.PHONY: all dataset-v1 test clean
+.PHONY: all dataset-v1 examples test clean
 
 all: dataset-v1
 
@@ -12,6 +12,8 @@ datasets/v1/pv.csv \
 datasets/v1/datapackage.json \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile).h5)) \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile)-Mean.h5))
+
+examples: $(wildcard examples/v1/*.ipynb)
 
 test: datasets/v1/profiles/dataset1/001-Mean.h5 _temp/v1/pv/dataset1.csv
 
@@ -38,7 +40,11 @@ datasets/v1/datapackage.json: config/v1/datapackage.json
 	mkdir -p $(@D)
 	cp $< $@
 
-_temp/v1/ContactAngles.yml: scripts/v1/write-ca.py  _data/v1/ca/G50 _data/v1/ca/G45 _data/v1/ca/G40 _data/v1/ca/G40IPA
+_temp/v1/%-contact_angle.csv: scripts/v1/read-ca.py _data/v1/ca/%
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
+_temp/v1/ContactAngles.yml: scripts/v1/write-ca.py  _temp/v1/G50-contact_angle.csv _temp/v1/G45-contact_angle.csv _temp/v1/G40-contact_angle.csv _temp/v1/G40IPA-contact_angle.csv
 	mkdir -p $(@D)
 	python3 $^ --slurries HighViscosity Standard LowViscosity LowSurfaceTension -o $@
 
@@ -49,5 +55,8 @@ _temp/v1/pv/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _data/v1
 datasets/v1/pv.csv: $(foreach dataset, $(DATASETS_v1), _temp/v1/pv/$(dataset).csv)
 	mkdir -p $(@D)
 	python3 -c "import pandas as pd; pd.concat([pd.read_csv(path) for path in '$^'.split(' ')]).to_csv('$@', index=False)"
+
+examples/v1/contact_angle.ipynb: _temp/v1/G50-contact_angle.csv _temp/v1/G45-contact_angle.csv _temp/v1/G40-contact_angle.csv _temp/v1/G40IPA-contact_angle.csv
+	jupyter nbconvert --to notebook --execute --inplace $@
 
 .SECONDARY:
