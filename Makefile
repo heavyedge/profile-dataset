@@ -71,7 +71,7 @@ _temp/v1/ContactAngles.yml: scripts/v1/write-ca.py datasets/v1/contact_angles/G5
 	mkdir -p $(@D)
 	python3 $^ --slurries HighViscosity Standard LowViscosity LowSurfaceTension -o $@
 
-_temp/v1/pv/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _data/v1/SlurryViscosities/Descending _data/v1/SlurryProperties _temp/v1/ContactAngles.yml datasets/v1/datapackage.json
+_temp/v1/pv/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _temp/v1/Viscosities.csv _data/v1/SlurryProperties _temp/v1/ContactAngles.yml datasets/v1/datapackage.json
 	mkdir -p $(@D)
 	python3 $^ --dataset=$* -o $@
 

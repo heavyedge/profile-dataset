@@ -19,7 +19,7 @@ parser.add_argument("index", type=pathlib.Path, help="Experiment index CSV file"
 parser.add_argument(
     "viscosities",
     type=pathlib.Path,
-    help="Directory of viscosity xlsx files",
+    help="Viscosity csv file",
 )
 parser.add_argument(
     "properties",
@@ -65,14 +65,19 @@ if args.dataset is not None:
     pv["Name"] = pv["Name"].apply(lambda x: f"{args.dataset}/{x}")
 
 VISCOSITY_NAMES = dict(
-    high_viscosity="HighViscosity",
-    standard_viscosity="Standard",
-    low_viscosity="LowViscosity",
-    low_surface_tension="LowSurfaceTension",
+    G50="HighViscosity",
+    G45="Standard",
+    G40="LowViscosity",
+    G40IPA="LowSurfaceTension",
 )
+viscosity_data = load_viscosity(args.viscosities)
+descending_viscosities = viscosity_data.loc[
+    viscosity_data["sweep_direction"] == "descending"
+]
 viscosities = {
-    VISCOSITY_NAMES[path.stem]: load_viscosity(path)
-    for path in args.viscosities.glob("*.csv")
+    VISCOSITY_NAMES[slurry]: data
+    for slurry, data in descending_viscosities.groupby("slurry", sort=False)
+    if slurry in VISCOSITY_NAMES
 }
 
 properties = {path.stem: load_property(path) for path in args.properties.glob("*.yml")}
@@ -88,8 +93,8 @@ viscosity = np.array(
     [
         np.interp(
             sr.magnitude,
-            list(reversed(viscosities[s]["shear rate"].apply(lambda x: x.magnitude))),
-            list(reversed(viscosities[s]["viscosity"].apply(lambda x: x.magnitude))),
+            viscosities[s]["shear_rate"].iloc[::-1].apply(lambda x: x.magnitude),
+            viscosities[s]["viscosity"].iloc[::-1].apply(lambda x: x.magnitude),
         )
         * VISCOSITY_UNIT
         for sr, s in zip(shear_rate, pv["Slurry"])
