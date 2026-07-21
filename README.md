@@ -8,6 +8,7 @@ Preprocessed edge profile dataset.
 
 ```sh
 export PROFILES_V1_GDRIVE="..."
+export CA_V1_GDRIVE="..."
 ./setup.sh
 ```
 
