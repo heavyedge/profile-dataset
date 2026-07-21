@@ -89,27 +89,26 @@ upload_release_examples() (
   echo "Uploaded ${asset_name} to release ${GITHUB_REF_NAME}."
 )
 
-dataset_status=0
+status=0
 if [ "${DATASET_MODE}" = "release" ]; then
   if [ -z "${GITHUB_REF_NAME:-}" ]; then
     echo "::error::Missing GITHUB_REF_NAME for dataset upload." >&2
-    dataset_status=1
+    status=1
   fi
-  if [ "$dataset_status" -eq 0 ] && ! uv pip install --system huggingface_hub; then
-    dataset_status=1
+  if [ "$status" -eq 0 ] && ! uv pip install --system huggingface_hub; then
+    status=1
   fi
   dataset_metadata_file="${DATASET_UPLOAD_METADATA_FILE:-/tmp/dataset-upload-metadata.json}"
-  if [ "$dataset_status" -eq 0 ]; then
+  if [ "$status" -eq 0 ]; then
     rm -f "$dataset_metadata_file"
     if ! python upload.py "${GITHUB_REF_NAME}" --metadata-file "$dataset_metadata_file"; then
-      dataset_status=1
+      status=1
     fi
   fi
 fi
 
-release_asset_status=0
-if [ "${GITHUB_EVENT_NAME:-}" = "release" ] && ! upload_release_examples; then
-  release_asset_status=1
+if [ "$status" -eq 0 ] && [ "${GITHUB_EVENT_NAME:-}" = "release" ] && ! upload_release_examples; then
+  status=2
 fi
 
-exit $((dataset_status + release_asset_status))
+exit "$status"
