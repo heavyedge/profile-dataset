@@ -24,6 +24,7 @@ class BuildStatus(IntEnum):
 class DeployStatus(IntEnum):
     SUCCESS = 0
     DATASET_UPLOAD_FAILED = 1
+    ARTIFACT_UPLOAD_FAILED = 2
 
 
 class TokenStatus(IntEnum):

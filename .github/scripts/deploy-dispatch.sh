@@ -57,6 +57,8 @@ if ! cleanup_payload="$(
     --arg build_conclusion "${BUILD_CONCLUSION}" \
     --arg upload_dataset_check_run_id "${UPLOAD_DATASET_CHECK_RUN_ID:-}" \
     --arg upload_dataset_conclusion "${UPLOAD_DATASET_CONCLUSION:-failure}" \
+    --arg upload_artifact_check_run_id "${UPLOAD_ARTIFACT_CHECK_RUN_ID:-}" \
+    --arg upload_artifact_conclusion "${UPLOAD_ARTIFACT_CONCLUSION:-failure}" \
     --arg image_tag "${IMAGE_TAG}" \
     --arg kubernetes_job_name "${KUBERNETES_JOB_NAME:-}" \
     '{
@@ -67,6 +69,8 @@ if ! cleanup_payload="$(
         build_conclusion: $build_conclusion,
         upload_dataset_check_run_id: $upload_dataset_check_run_id,
         upload_dataset_conclusion: $upload_dataset_conclusion,
+        upload_artifact_check_run_id: $upload_artifact_check_run_id,
+        upload_artifact_conclusion: $upload_artifact_conclusion,
         image_tag: $image_tag,
         kubernetes_job_name: $kubernetes_job_name
       }

@@ -88,14 +88,19 @@ spec:
 
               build_conclusion=failure
               upload_dataset_conclusion=failure
+              upload_artifact_conclusion=failure
               if [ "$build_status" -eq 0 ]; then
                 build_conclusion=success
-                if [ $((deploy_status & 1)) -eq 0 ]; then
+                if [ "$deploy_status" -eq 0 ] || [ "$deploy_status" -eq 2 ]; then
                   upload_dataset_conclusion=success
+                fi
+                if [ "${GITHUB_EVENT_NAME:-}" = "release" ] && [ "$deploy_status" -eq 0 ]; then
+                  upload_artifact_conclusion=success
                 fi
               fi
               export BUILD_CONCLUSION="$build_conclusion"
               export UPLOAD_DATASET_CONCLUSION="$upload_dataset_conclusion"
+              export UPLOAD_ARTIFACT_CONCLUSION="$upload_artifact_conclusion"
 
               dataset_revision=
               dataset_repo_id=
@@ -163,10 +168,14 @@ spec:
               value: "${BUILD_CHECK_RUN_ID}"
             - name: UPLOAD_DATASET_CHECK_RUN_ID
               value: "${UPLOAD_DATASET_CHECK_RUN_ID}"
+            - name: UPLOAD_ARTIFACT_CHECK_RUN_ID
+              value: "${UPLOAD_ARTIFACT_CHECK_RUN_ID}"
             - name: CLEANUP_CHECK_RUN_ID
               value: "${CLEANUP_CHECK_RUN_ID}"
             - name: IMAGE_TAG
               value: "${IMAGE_TAG}"
+            - name: GITHUB_EVENT_NAME
+              value: "${GITHUB_EVENT_NAME}"
             - name: GITHUB_REF_NAME
               value: "${GITHUB_REF_NAME}"
             - name: GITHUB_DISPATCH_REF
