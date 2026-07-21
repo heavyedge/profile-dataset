@@ -1,12 +1,14 @@
 import argparse
 import pathlib
 
+import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
-def plot_ca(ca_files, labels):
+def plot_ca(ca_files, labels, ca_img=None):
     fig, ax = plt.subplots()
 
     for path, label in zip(ca_files, labels):
@@ -51,6 +53,13 @@ def plot_ca(ca_files, labels):
     plt.xlabel("Time (s)")
     plt.ylabel("Contact Angle (degree)")
     plt.legend()
+
+    if ca_img:
+        img = mpimg.imread(ca_img)
+        axins = inset_axes(ax, width="30%", height="30%", loc="upper right")
+        axins.imshow(img)
+        axins.axis("off")
+
     return fig
 
 
@@ -58,8 +67,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Write contact angle data.")
     parser.add_argument("ca", type=pathlib.Path, nargs="*", help="csv files")
     parser.add_argument("--slurries", nargs="*", help="Slurry names")
+    parser.add_argument("--img", type=pathlib.Path, help="Example image file")
     parser.add_argument("-o", "--out", type=pathlib.Path, help="Output image file")
     args = parser.parse_args()
-    fig = plot_ca(args.ca, args.slurries)
+    fig = plot_ca(args.ca, args.slurries, args.img)
     if args.out:
         fig.savefig(args.out)
