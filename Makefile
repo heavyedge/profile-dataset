@@ -81,4 +81,7 @@ examples/v1/profile.ipynb: datasets/v1/profiles/dataset1/001.h5 datasets/v1/prof
 examples/v1/contact_angle.ipynb: datasets/v1/contact_angles/G50.csv datasets/v1/contact_angles/G45.csv datasets/v1/contact_angles/G40.csv datasets/v1/contact_angles/G40IPA.csv
 	jupyter nbconvert --to notebook --execute --inplace $@
 
+examples/v1/viscosity.ipynb: datasets/v1/viscosities/G50.csv datasets/v1/viscosities/G45.csv datasets/v1/viscosities/G40.csv datasets/v1/viscosities/G40IPA.csv
+	jupyter nbconvert --to notebook --execute --inplace $@
+
 .SECONDARY:
