@@ -88,4 +88,7 @@ examples/v1/contact_angle.ipynb: datasets/v1/contact_angles/G50.csv datasets/v1/
 examples/v1/viscosity.ipynb: datasets/v1/viscosities/G50.csv datasets/v1/viscosities/G45.csv datasets/v1/viscosities/G40.csv datasets/v1/viscosities/G40IPA.csv
 	jupyter nbconvert --to notebook --execute --inplace $@
 
+examples/v1/dimless.ipynb: datasets/v1/pv.csv datasets/v1/datapackage.json
+	jupyter nbconvert --to notebook --execute --inplace $@
+
 .SECONDARY:
