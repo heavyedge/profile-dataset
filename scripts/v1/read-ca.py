@@ -27,4 +27,17 @@ df_combined = pd.concat(
     keys=[f.stem for f in xls_files],
     names=["file", "row"],
 )
-df_combined.to_csv(args.out)
+df_combined = df_combined.reset_index()
+df_combined["name"] = (
+    df_combined["file"].astype(str) + "/" + df_combined["row"].astype(str)
+)
+df_combined = df_combined.drop(columns=["file", "row"]).set_index("name")
+
+fields = [
+    "Contact Angle(Average)[degree]",
+    "Left Angle[degree]",
+    "Right Angle[degree]",
+    "Rec. Date",
+    "Rec. Time",
+]
+df_combined[fields].to_csv(args.out)

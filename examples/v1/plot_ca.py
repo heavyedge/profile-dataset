@@ -12,7 +12,10 @@ def plot_ca(ca_files, labels, ca_img=None):
     fig, ax = plt.subplots()
 
     for path, label in zip(ca_files, labels):
-        df = pd.read_csv(path, index_col=[0, 1])
+        df = pd.read_csv(path, index_col="name")
+        df["file"] = (
+            df.index.to_series().astype(str).str.rsplit("/", n=1).str[0].to_numpy()
+        )
 
         all_t, all_y = [], []
         for _, subdf in df.groupby("file"):
