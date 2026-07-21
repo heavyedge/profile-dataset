@@ -334,6 +334,7 @@ jobs:
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}
           IMAGE_TAG: ${{ needs.build-image.outputs.tag }}
           DATASET_MODE: ${{ needs.resolve-variables.outputs.dataset_mode }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
           DATASET_REVISION: ${{ needs.resolve-variables.outputs.dataset_revision }}
           DATASET_REPO_ID: ${{ needs.resolve-variables.outputs.dataset_repo_id }}
