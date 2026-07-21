@@ -49,19 +49,21 @@ def main():
 
     is_release = args.event_name == "release"
 
-    # test: push/PR, release: final/pre, reuse: post/dev
+    # test: push/PR, release: final/pre, post: post, development: dev
     dataset_mode = "test"
     dataset_revision = ""
     dataset_repo_id = ""
     if is_release:
         try:
             version = parse_release_version(args.ref_name)
-            if version.post is None and version.dev is None:
-                dataset_mode = "release"
-            else:
-                dataset_mode = "reuse"
+            if version.dev is not None:
+                dataset_mode = "development"
+            elif version.post is not None:
+                dataset_mode = "post"
                 dataset_revision = dataset_tag(args.ref_name, version)
                 dataset_repo_id = "jeesoo9595/heavyedge-profiles"
+            else:
+                dataset_mode = "release"
         except ValueError as error:
             print(error, file=sys.stderr)
             sys.exit(1)
