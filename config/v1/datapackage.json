@@ -70,6 +70,41 @@
       "mediatype": "text/csv"
     },
     {
+      "name": "viscosities",
+      "type": "table",
+      "path": "viscosities/",
+      "schema": {
+        "primaryKey": ["sweep_direction", "shear_rate"],
+        "missingValues": [""],
+        "fields": [
+          {
+            "name": "shear_rate",
+            "type": "number",
+            "unit": "1/s",
+            "description": "Applied shear rate during the rheometer shear sweep.",
+            "constraints": {"required": true}
+          },
+          {
+            "name": "viscosity",
+            "type": "number",
+            "unit": "Pa*s",
+            "description": "Apparent dynamic viscosity measured at the corresponding shear rate.",
+            "constraints": {"required": true}
+          },
+          {
+            "name": "sweep_direction",
+            "type": "string",
+            "description": "Direction of the shear-rate sweep: ascending or descending.",
+            "constraints": {"required": true, "enum": ["ascending", "descending"]}
+          }
+        ]
+      },
+      "title": "Rheometer shear-sweep measurements",
+      "description": "Apparent viscosity curves measured by rheometer shear-rate sweeps. Each CSV contains ascending and descending sweeps for one slurry.",
+      "format": "csv",
+      "mediatype": "text/csv"
+    },
+    {
       "name": "pv",
       "type": "table",
       "path": "pv.csv",

@@ -11,6 +11,7 @@ all: dataset-v1 examples
 dataset-v1: \
 datasets/v1/pv.csv \
 $(foreach slurry,$(SLURRIES_v1),datasets/v1/contact_angles/$(slurry).csv) \
+$(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosities/$(slurry).csv) \
 datasets/v1/datapackage.json \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile).h5)) \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile)-Mean.h5))
@@ -43,6 +44,22 @@ datasets/v1/datapackage.json: config/v1/datapackage.json
 	cp $< $@
 
 datasets/v1/contact_angles/%.csv: scripts/v1/read-ca.py _data/v1/ca/%
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
+datasets/v1/viscosities/G50.csv: scripts/v1/write-viscosity.py _data/v1/SlurryViscosities/Ascending/high_viscosity.csv _data/v1/SlurryViscosities/Descending/high_viscosity.csv
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
+datasets/v1/viscosities/G45.csv: scripts/v1/write-viscosity.py _data/v1/SlurryViscosities/Ascending/standard_viscosity.csv _data/v1/SlurryViscosities/Descending/standard_viscosity.csv
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
+datasets/v1/viscosities/G40.csv: scripts/v1/write-viscosity.py _data/v1/SlurryViscosities/Ascending/low_viscosity.csv _data/v1/SlurryViscosities/Descending/low_viscosity.csv
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
+datasets/v1/viscosities/G40IPA.csv: scripts/v1/write-viscosity.py _data/v1/SlurryViscosities/Ascending/low_surface_tension.csv _data/v1/SlurryViscosities/Descending/low_surface_tension.csv
 	mkdir -p $(@D)
 	python3 $^ -o $@
 
