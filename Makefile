@@ -52,7 +52,7 @@ datasets/v1/pv.csv: $(foreach dataset, $(DATASETS_v1), _temp/v1/pv/$(dataset).cs
 	mkdir -p $(@D)
 	python3 -c "import pandas as pd; pd.concat([pd.read_csv(path) for path in '$^'.split(' ')]).to_csv('$@', index=False)"
 
-examples/v1/capillary_number.ipynb: _data/v1/ca/G50 _data/v1/ca/G45 _data/v1/ca/G40 _data/v1/ca/G40IPA
+examples/v1/contact_angle.ipynb: _data/v1/ca/G50 _data/v1/ca/G45 _data/v1/ca/G40 _data/v1/ca/G40IPA
 	jupyter nbconvert --to notebook --execute --inplace $@
 
 .SECONDARY:
