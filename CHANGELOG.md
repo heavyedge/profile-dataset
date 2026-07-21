@@ -17,4 +17,5 @@ Includes:
   - Preprocessed sets of profiles
   - Mean profiles of each set of profiles
   - Process variables
+  - Viscosity measurement data
   - Contact angle measurement data

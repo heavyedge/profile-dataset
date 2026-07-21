@@ -43,10 +43,6 @@ datasets/v1/datapackage.json: config/v1/datapackage.json
 	mkdir -p $(@D)
 	cp $< $@
 
-datasets/v1/contact_angles/%.csv: scripts/v1/read-ca.py _data/v1/ca/%
-	mkdir -p $(@D)
-	python3 $^ -o $@
-
 datasets/v1/viscosities/G50.csv: scripts/v1/write-viscosity.py _data/v1/SlurryViscosities/Ascending/high_viscosity.csv _data/v1/SlurryViscosities/Descending/high_viscosity.csv
 	mkdir -p $(@D)
 	python3 $^ -o $@
@@ -60,6 +56,10 @@ datasets/v1/viscosities/G40.csv: scripts/v1/write-viscosity.py _data/v1/SlurryVi
 	python3 $^ -o $@
 
 datasets/v1/viscosities/G40IPA.csv: scripts/v1/write-viscosity.py _data/v1/SlurryViscosities/Ascending/low_surface_tension.csv _data/v1/SlurryViscosities/Descending/low_surface_tension.csv
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
+datasets/v1/contact_angles/%.csv: scripts/v1/read-ca.py _data/v1/ca/%
 	mkdir -p $(@D)
 	python3 $^ -o $@
 
