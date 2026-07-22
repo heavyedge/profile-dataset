@@ -41,3 +41,25 @@ LABEL org.opencontainers.image.created="${IMAGE_CREATED}" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.title="HeavyEdge Profile Dataset (data)" \
       org.opencontainers.image.description="Built data from heavyedge/profile-dataset."
+
+FROM python:slim AS base
+COPY --from=uv /uv /uvx /usr/local/bin/
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY --exclude=.* --exclude=_* . .
+
+ARG IMAGE_CREATED
+ARG IMAGE_VERSION
+ARG IMAGE_REVISION
+LABEL org.opencontainers.image.created="${IMAGE_CREATED}" \
+      org.opencontainers.image.authors="Jisoo Song <jeesoo9595@snu.ac.kr>" \
+      org.opencontainers.image.source="https://github.com/heavyedge/profile-dataset" \
+      org.opencontainers.image.version="${IMAGE_VERSION}" \
+      org.opencontainers.image.revision="${IMAGE_REVISION}" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.title="HeavyEdge Profile Dataset" \
+      org.opencontainers.image.description="Base environment for heavyedge/profile-dataset."

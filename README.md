@@ -116,6 +116,10 @@ After downloading the raw dataset and building the preprocessed data and example
 
 - `data`
   - Includes the preprocessed dataset (`datasets`).
+- `base` (default)
+  - Includes the preprocessed dataset (`datasets`).
+  - Includes the built examples (`examples`).
+  - Includes non-hidden source files.
 - `dev`
   - Includes the raw dataset (`_data`).
   - Includes the preprocessed dataset (`datasets`).

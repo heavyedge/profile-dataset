@@ -161,7 +161,6 @@ jobs:
             docker run --rm heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt -r examples/requirements.txt && HEAVYEDGE_TEST_MODE=1 make datasets/v1/profiles/dataset1/001.h5'
             docker run --rm heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt -r examples/requirements.txt && HEAVYEDGE_TEST_MODE=1 make examples/v1/profile.ipynb'
 
-
   image-data:
 
     needs: test
@@ -199,3 +198,42 @@ jobs:
       - name: Test Docker image
         run: |
             docker run --rm heavyedge-profile-dataset:data-ci sh -c '[ ! -d "_data" ] && [ -d "datasets" ] && [ ! -d "examples" ]'
+
+  image-base:
+
+    needs: test
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: raw-dataset
+          path: _data/v1/profiles/dataset1
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: preprocessed-dataset
+          path: datasets/v1/profiles/dataset1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          target: base
+          cache-from: type=gha,scope=profile-dataset
+          cache-to: type=gha,mode=max,scope=profile-dataset
+          tags: heavyedge-profile-dataset:ci
+
+      - name: Test Docker image
+        run: |
+            docker run --rm heavyedge-profile-dataset:ci sh -c '[ ! -d "_data" ] && [ -d "datasets" ] && [ -d "examples" ]'
+            docker run --rm heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt -r examples/requirements.txt && HEAVYEDGE_TEST_MODE=1 make examples/v1/profile.ipynb'
