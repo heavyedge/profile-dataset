@@ -72,6 +72,7 @@ jobs:
         with:
           name: preprocessed-dataset
           path: datasets/v1/profiles/dataset1/001-*
+          retention-days: 1
 
   find-notebooks:
 
@@ -156,4 +157,5 @@ jobs:
 
       - name: Test Docker image
         run: |
-            docker run --rm heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt -r examples/requirements.txt && HEAVYEDGE_TEST_MODE=1 make'
+            docker run --rm heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt -r examples/requirements.txt && HEAVYEDGE_TEST_MODE=1 make datasets/v1/profiles/dataset1/001.h5'
+            docker run --rm heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt -r examples/requirements.txt && HEAVYEDGE_TEST_MODE=1 make examples/v1/profile.ipynb'

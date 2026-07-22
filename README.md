@@ -108,6 +108,18 @@ Setting the `HEAVYEDGE_TEST_MODE` environment variable to `1` builds only a smal
 HEAVYEDGE_TEST_MODE=1 make
 ```
 
+### Building the container image
+
+`Dockerfile` is provided to facilitate data distribution without sharing secrets.
+
+After downloading the raw dataset and building the preprocessed data and examples, build the image with one of the following target:
+
+- `dev`
+  - Includes the raw dataset (`_data`).
+  - Includes the preprocessed dataset (`datasets`).
+  - Includes the built examples (`examples`).
+  - Includes all source files.
+
 ### Versioning policy
 
 This repository follows semantic versioning with [Python version specifiers](https://packaging.python.org/en/latest/specifications/version-specifiers/):
