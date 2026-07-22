@@ -6,7 +6,7 @@ SLURRIES_v1 := G50 G45 G40 G40IPA
 
 .PHONY: all datasets examples dataset-v1 examples-v1 clean
 
-all:
+all: datasets examples
 
 datasets: dataset-v1
 
