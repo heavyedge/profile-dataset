@@ -65,13 +65,13 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: raw-dataset
-          path: _data/v1/profiles/dataset1/*
+          path: _data/v1/profiles/dataset1/001-*
           retention-days: 1
 
       - uses: actions/upload-artifact@v4
         with:
           name: preprocessed-dataset
-          path: datasets/v1/profiles/dataset1/*
+          path: datasets/v1/profiles/dataset1/001-*
 
   find-notebooks:
 
