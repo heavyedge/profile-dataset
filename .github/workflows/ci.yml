@@ -60,7 +60,7 @@ jobs:
           CA_V1_GDRIVE: ${{ secrets.CA_V1_GDRIVE }}
 
       - name: test
-        run: make test
+        run: HEAVYEDGE_TEST_MODE=1 make dataset-v1 examples-v1
 
   find-notebooks:
 
@@ -133,7 +133,7 @@ jobs:
 
       - name: Test Docker image
         run: |
-          docker run --rm -e PROFILES_V1_GDRIVE -e CA_V1_GDRIVE heavyedge-profile-dataset:dev-ci sh -c './setup.sh && make test'
+          docker run --rm -e PROFILES_V1_GDRIVE -e CA_V1_GDRIVE heavyedge-profile-dataset:dev-ci sh -c './setup.sh && HEAVYEDGE_TEST_MODE=1 make dataset-v1 examples-v1'
         env:
           PROFILES_V1_GDRIVE: ${{ secrets.PROFILES_V1_GDRIVE }}
           CA_V1_GDRIVE: ${{ secrets.CA_V1_GDRIVE }}

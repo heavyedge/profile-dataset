@@ -15,7 +15,7 @@ export CA_V1_GDRIVE="..."
 ## Building the dataset
 
 ```
-make
+make dataset-v1
 ```
 
 Each `datasets/v*` directory stores preprocessed profiles from the corresponding major version of raw profile dataset.
@@ -23,7 +23,7 @@ Each `datasets/v*` directory stores preprocessed profiles from the corresponding
 ## Building the notebooks
 
 ```sh
-make examples
+make examples-v1
 ```
 
 ## Contributing
