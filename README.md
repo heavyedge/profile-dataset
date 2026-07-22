@@ -39,8 +39,8 @@ export CA_V1_GDRIVE="..."
 
 ### Acquiring the preprocessed data
 
-The preprocessed data built by this project can be acquired by directly downloading from the [dataset repository](https://huggingface.co/datasets/jeesoo9595/heavyedge-profiles).
-Alternatively, you can perform the preprocessing by yourself if you have downloaded the raw dataset.
+The preprocessed data built by this project can be acquired by downloading it directly from the [dataset repository](https://huggingface.co/datasets/jeesoo9595/heavyedge-profiles).
+Alternatively, you can perform the preprocessing yourself if you have downloaded the raw dataset.
 
 Either approach creates the preprocessed data in the `datasets` directory.
 
@@ -64,17 +64,17 @@ You need:
 
 Run the following command:
 
-```
-make dataset-v1
+```sh
+make datasets
 ```
 
 Each `datasets/v*` directory stores preprocessed profiles from the corresponding major version of raw profile dataset.
 
 ### Acquiring the visualization result
 
-Preprocessed data are visualized as notebooks in the `examples` directory.
+The preprocessed data are visualized as notebooks in the `examples` directory.
 
-You can either download the notebooks from the [GitHub release](https://github.com/heavyedge/profile-dataset/releases) artifacts, or build the notebook by yourself if you have acquired the preprocessed data.
+You can either download the notebooks from the [GitHub release](https://github.com/heavyedge/profile-dataset/releases) artifacts, or build the notebooks yourself if you have acquired the preprocessed data.
 
 #### Building the notebooks
 
@@ -84,7 +84,7 @@ You need:
 
 ```sh
 pip install -r examples/requirements.txt
-make examples-v1
+make examples
 ```
 
 ## Contributing
@@ -99,6 +99,32 @@ git config filter.nbstripout.clean "nbstripout"
 git config filter.nbstripout.smudge cat
 git config filter.nbstripout.required true
 ```
+
+### Testing
+
+Setting the `HEAVYEDGE_TEST_MODE` environment variable to `1` builds only a small subset of data for testing purposes.
+
+```sh
+HEAVYEDGE_TEST_MODE=1 make
+```
+
+### Building the container image
+
+The `Dockerfile` is provided to facilitate data distribution without sharing secrets.
+
+After downloading the raw dataset and building the preprocessed data and examples, build the image with one of the following targets:
+
+- `data`
+  - Includes the preprocessed dataset (`datasets`).
+- `base` (default)
+  - Includes the preprocessed dataset (`datasets`).
+  - Includes the built examples (`examples`).
+  - Includes non-hidden source files.
+- `dev`
+  - Includes the raw dataset (`_data`).
+  - Includes the preprocessed dataset (`datasets`).
+  - Includes the built examples (`examples`).
+  - Includes all source files.
 
 ### Versioning policy
 
@@ -119,5 +145,5 @@ N.N.N[{a|b|rc}N][.postN][.devN]
   - Dataset is not built and not deployed to HuggingFace.
   - Examples are not built and not uploaded as release artifacts.
 
-> **NOTE** : Major version is raised only when the dataset is changed in backwards incompatible way.
+> **NOTE**: The major version is raised only when the dataset is changed in a backward-incompatible way.
 > When new data is added, minor version is raised with new `datasets/v*` directory.

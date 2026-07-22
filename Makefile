@@ -4,9 +4,13 @@ DATASETS_v1 := $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),dataset1,$(shell ls -d _d
 PROFILES_v1 = $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),001,$(shell ls _data/v1/profiles/$(1)/*.tar.gz | xargs -n 1 basename -s .tar.gz))
 SLURRIES_v1 := G50 G45 G40 G40IPA
 
-.PHONY: all dataset-v1 examples-v1 clean
+.PHONY: all datasets examples dataset-v1 examples-v1 clean
 
-all:
+all: datasets examples
+
+datasets: dataset-v1
+
+examples: examples-v1
 
 dataset-v1: \
 datasets/v1/pv.csv \
