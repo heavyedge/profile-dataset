@@ -44,80 +44,34 @@ spec:
 
               python .github/k8s/send-email.py --status "Started" || true
 
-              job_log_dir="${JOB_LOG_DIR:-/tmp/heavyedge-deploy-logs}"
-              mkdir -p "$job_log_dir"
-              build_log_file="$job_log_dir/build.log"
-              app_token_log_file="$job_log_dir/github-app-token.log"
-              deploy_log_file="$job_log_dir/deploy.log"
-              dispatch_log_file="$job_log_dir/deploy-dispatch.log"
-
-              run_and_log() {
-                command_label="$1"
-                log_file="$2"
-                shift 2
-
-                printf '$ %s\n' "$command_label" | tee "$log_file"
-                status_file="${log_file}.status"
-                rm -f "$status_file"
-                (
-                  "$@"
-                  command_status=$?
-                  printf '%s\n' "$command_status" > "$status_file"
-                  exit "$command_status"
-                ) 2>&1 | tee -a "$log_file"
-                if [ -s "$status_file" ]; then
-                  command_status="$(cat "$status_file")"
-                else
-                  command_status=1
-                fi
-                rm -f "$status_file"
-                return "$command_status"
-              }
-
               build_status=0
-              run_and_log "sh .github/k8s/build.sh" "$build_log_file" sh .github/k8s/build.sh || build_status=$?
+              sh .github/k8s/build.sh || build_status=$?
+              if [ "$build_status" -eq 0 ]; then
+                build_conclusion=success
+              else
+                build_conclusion=failure
+              fi
+              export BUILD_CONCLUSION="$build_conclusion"
 
               token_status=0
-              printf '%s\n' '$ sh .github/k8s/app-token.sh' > "$app_token_log_file"
-              GITHUB_APP_TOKEN="$(sh .github/k8s/app-token.sh 2>> "$app_token_log_file")" || token_status=$?
-              cat "$app_token_log_file"
+              GITHUB_APP_TOKEN="$(sh .github/k8s/app-token.sh)" || token_status=$?
               export GITHUB_APP_TOKEN
 
               deploy_status=0
-              run_and_log "sh .github/k8s/deploy.sh" "$deploy_log_file" sh .github/k8s/deploy.sh || deploy_status=$?
-
-              build_conclusion=failure
-              upload_dataset_conclusion=failure
-              upload_artifact_conclusion=failure
-              if [ "$build_status" -eq 0 ]; then
-                build_conclusion=success
-                if [ "$deploy_status" -eq 0 ] || [ "$deploy_status" -eq 2 ]; then
-                  upload_dataset_conclusion=success
-                fi
-                if [ "${GITHUB_EVENT_NAME:-}" = "release" ] && [ "$deploy_status" -eq 0 ]; then
-                  upload_artifact_conclusion=success
-                fi
+              sh .github/k8s/deploy.sh || deploy_status=$?
+              deploy_conclusion=success
+              doc_deploy_conclusion=success
+              if [ $((deploy_status & 1)) -ne 0 ]; then
+                deploy_conclusion=failure
               fi
-              export BUILD_CONCLUSION="$build_conclusion"
-              export UPLOAD_DATASET_CONCLUSION="$upload_dataset_conclusion"
-              export UPLOAD_ARTIFACT_CONCLUSION="$upload_artifact_conclusion"
-
-              dataset_revision=
-              dataset_repo_id=
-              if { [ "$DATASET_MODE" = "release" ] || [ "$DATASET_MODE" = "post" ]; } &&
-                [ "$upload_dataset_conclusion" = "success" ]; then
-                dataset_metadata_file="${DATASET_UPLOAD_METADATA_FILE:-/tmp/dataset-upload-metadata.json}"
-                if ! dataset_revision="$(python -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["dataset_revision"])' "$dataset_metadata_file")" ||
-                  ! dataset_repo_id="$(python -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["dataset_repo"])' "$dataset_metadata_file")"; then
-                  dataset_revision=
-                  dataset_repo_id=
-                fi
+              if [ $((deploy_status & 2)) -ne 0 ]; then
+                doc_deploy_conclusion=failure
               fi
-              export DATASET_REVISION="$dataset_revision"
-              export DATASET_REPO_ID="$dataset_repo_id"
+              export DEPLOY_CONCLUSION="$deploy_conclusion"
+              export DOC_DEPLOY_CONCLUSION="$doc_deploy_conclusion"
 
               dispatch_status=0
-              run_and_log "sh .github/scripts/deploy-dispatch.sh" "$dispatch_log_file" sh .github/scripts/deploy-dispatch.sh || dispatch_status=$?
+              sh .github/scripts/deploy-dispatch.sh || dispatch_status=$?
 
               exit_code=0
               if [ "$build_status" -ne 0 ]; then
@@ -137,7 +91,7 @@ spec:
               if [ "$exit_code" -eq 0 ]; then
                 email_status=Completed
               fi
-              python .github/k8s/send-email.py --status "$email_status" --exit-code "$exit_code" --build-status "$build_status" --deploy-status "$deploy_status" --token-status "$token_status" --dispatch-status "$dispatch_status" || true
+              python .github/k8s/send-email.py --status "$email_status" --exit-code "$exit_code" --build-status "$build_status" --deploy-status "$deploy_status" || true
 
               touch /var/run/heavyedge/deploy.done
               exit "$exit_code"
@@ -164,16 +118,14 @@ spec:
               value: "${JOB_NAME}"
             - name: BUILD_CHECK_RUN_ID
               value: "${BUILD_CHECK_RUN_ID}"
-            - name: UPLOAD_DATASET_CHECK_RUN_ID
-              value: "${UPLOAD_DATASET_CHECK_RUN_ID}"
-            - name: UPLOAD_ARTIFACT_CHECK_RUN_ID
-              value: "${UPLOAD_ARTIFACT_CHECK_RUN_ID}"
+            - name: DEPLOY_CHECK_RUN_ID
+              value: "${DEPLOY_CHECK_RUN_ID}"
+            - name: DOC_DEPLOY_CHECK_RUN_ID
+              value: "${DOC_DEPLOY_CHECK_RUN_ID}"
             - name: CLEANUP_CHECK_RUN_ID
               value: "${CLEANUP_CHECK_RUN_ID}"
             - name: IMAGE_TAG
               value: "${IMAGE_TAG}"
-            - name: GITHUB_EVENT_NAME
-              value: "${GITHUB_EVENT_NAME}"
             - name: GITHUB_REF_NAME
               value: "${GITHUB_REF_NAME}"
             - name: GITHUB_DISPATCH_REF
@@ -195,12 +147,18 @@ spec:
                 secretKeyRef:
                   name: huggingface-token
                   key: HUGGINGFACE_TOKEN
-            - name: DATASET_MODE
-              value: "${DATASET_MODE}"
-            - name: DATASET_REVISION
-              value: "${DATASET_REVISION}"
-            - name: DATASET_REPO_ID
-              value: "${DATASET_REPO_ID}"
+            - name: BUILD_MODE
+              value: "${BUILD_MODE}"
+            - name: DEPLOY_MODE
+              value: "${DEPLOY_MODE}"
+            - name: DOC_BUILD_MODE
+              value: "${DOC_BUILD_MODE}"
+            - name: DOC_DEPLOY_MODE
+              value: "${DOC_DEPLOY_MODE}"
+            - name: UPSTREAM_REVISION
+              value: "${UPSTREAM_REVISION}"
+            - name: UPSTREAM_REPO_ID
+              value: "${UPSTREAM_REPO_ID}"
             - name: CPU_REQUEST
               value: "${CPU_REQUEST}"
           volumeMounts:

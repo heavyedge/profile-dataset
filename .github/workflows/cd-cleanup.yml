@@ -15,16 +15,16 @@ on:
       build_conclusion:
         required: true
         type: string
-      upload_dataset_check_run_id:
+      deploy_check_run_id:
         required: false
         type: string
-      upload_dataset_conclusion:
+      deploy_conclusion:
         required: true
         type: string
-      upload_artifact_check_run_id:
+      doc_deploy_check_run_id:
         required: false
         type: string
-      upload_artifact_conclusion:
+      doc_deploy_conclusion:
         required: true
         type: string
       image_tag:
@@ -113,17 +113,17 @@ jobs:
         env:
           BUILD_CHECK_RUN_ID: ${{ inputs.build_check_run_id }}
           BUILD_CONCLUSION: ${{ inputs.build_conclusion }}
-          UPLOAD_DATASET_CHECK_RUN_ID: ${{ inputs.upload_dataset_check_run_id }}
-          UPLOAD_DATASET_CONCLUSION: ${{ inputs.upload_dataset_conclusion }}
-          UPLOAD_ARTIFACT_CHECK_RUN_ID: ${{ inputs.upload_artifact_check_run_id }}
-          UPLOAD_ARTIFACT_CONCLUSION: ${{ inputs.upload_artifact_conclusion }}
+          DEPLOY_CHECK_RUN_ID: ${{ inputs.deploy_check_run_id }}
+          DEPLOY_CONCLUSION: ${{ inputs.deploy_conclusion }}
+          DOC_DEPLOY_CHECK_RUN_ID: ${{ inputs.doc_deploy_check_run_id }}
+          DOC_DEPLOY_CONCLUSION: ${{ inputs.doc_deploy_conclusion }}
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const checks = [
               [process.env.BUILD_CHECK_RUN_ID, process.env.BUILD_CONCLUSION],
-              [process.env.UPLOAD_DATASET_CHECK_RUN_ID, process.env.UPLOAD_DATASET_CONCLUSION],
-              [process.env.UPLOAD_ARTIFACT_CHECK_RUN_ID, process.env.UPLOAD_ARTIFACT_CONCLUSION],
+              [process.env.DEPLOY_CHECK_RUN_ID, process.env.DEPLOY_CONCLUSION],
+              [process.env.DOC_DEPLOY_CHECK_RUN_ID, process.env.DOC_DEPLOY_CONCLUSION],
             ].filter(([checkRunId]) => checkRunId);
             const allowedConclusions = new Set(['success', 'failure']);
 

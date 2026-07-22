@@ -49,28 +49,39 @@ def main():
 
     is_release = args.event_name == "release"
 
-    # test: push/PR, release: final/pre, post: post, development: dev
-    dataset_mode = "test"
-    dataset_revision = ""
-    dataset_repo_id = ""
+    build_mode = "test"  # build: final/pre, pull: post, test: dev/push&PR
+    deploy_mode = "false"  # true: final/pre/post, false: post/dev/push&PR
+    doc_build_mode = "test"  # build: final/pre/post, test: dev/push&PR
+    doc_deploy_mode = "false"  # true: final/pre/post, false: dev/push&PR
+    upstream_revision = ""
+    upstream_repo_id = ""
     if is_release:
         try:
             version = parse_release_version(args.ref_name)
             if version.dev is not None:
-                dataset_mode = "development"
+                pass
             elif version.post is not None:
-                dataset_mode = "post"
-                dataset_revision = dataset_tag(args.ref_name, version)
-                dataset_repo_id = "jeesoo9595/heavyedge-profiles"
+                build_mode = "pull"
+                upstream_revision = dataset_tag(args.ref_name, version)
+                upstream_repo_id = "jeesoo9595/heavyedge-profiles"
+                deploy_mode = "true"
+                doc_build_mode = "build"
+                doc_deploy_mode = "true"
             else:
-                dataset_mode = "release"
+                build_mode = "build"
+                deploy_mode = "true"
+                doc_build_mode = "build"
+                doc_deploy_mode = "true"
         except ValueError as error:
             print(error, file=sys.stderr)
             sys.exit(1)
 
-    github_output("dataset_mode", dataset_mode)
-    github_output("dataset_revision", dataset_revision)
-    github_output("dataset_repo_id", dataset_repo_id)
+    github_output("build_mode", build_mode)
+    github_output("deploy_mode", deploy_mode)
+    github_output("doc_build_mode", doc_build_mode)
+    github_output("doc_deploy_mode", doc_deploy_mode)
+    github_output("upstream_revision", upstream_revision)
+    github_output("upstream_repo_id", upstream_repo_id)
 
 
 if __name__ == "__main__":

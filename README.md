@@ -15,7 +15,7 @@ export CA_V1_GDRIVE="..."
 ## Building the dataset
 
 ```
-make
+make dataset-v1
 ```
 
 Each `datasets/v*` directory stores preprocessed profiles from the corresponding major version of raw profile dataset.
@@ -23,7 +23,7 @@ Each `datasets/v*` directory stores preprocessed profiles from the corresponding
 ## Building the notebooks
 
 ```sh
-make examples
+make examples-v1
 ```
 
 ## Contributing
@@ -47,9 +47,16 @@ This repository follows semantic versioning with [Python version specifiers](htt
 N.N.N[{a|b|rc}N][.postN][.devN]
 ```
 
-- On final release and pre-release (`N.N.N[{a|b|rc}N]`), dataset is re-built and deployed to HuggingFace.
-- On post-release (`*.postN`), dataset is deployed to HuggingFace without re-building.
-- On developmental release (`*.devN`), dataset is not deployed to HuggingFace.
+- Final release and pre-release (`N.N.N[{a|b|rc}N]`):
+  - Dataset is re-built and deployed to HuggingFace.
+  - Examples are re-built using the new dataset and uploaded as release artifacts.
+- Post-release (`*.postN`):
+  - Dataset is deployed to HuggingFace without re-building.
+    This means that only the metadata will change.
+  - Examples are re-built using the previous dataset and uploaded as release artifacts.
+- Developmental release (`*.devN`):
+  - Dataset is not built and not deployed to HuggingFace.
+  - Examples are not built and not uploaded as release artifacts.
 
 > **NOTE** : Major version is raised only when the dataset is changed in backwards incompatible way.
-> When a new version of dataset is added, minor version is raised with new `dataset/v*` directory.
+> When new data is added, minor version is raised with new `datasets/v*` directory.

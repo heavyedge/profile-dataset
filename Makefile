@@ -1,12 +1,12 @@
 .ONESHELL:
 
-DATASETS_v1 := $(shell ls -d _data/v1/profiles/dataset* | xargs -n 1 basename)
-PROFILES_v1 = $(shell ls _data/v1/profiles/$(1)/*.tar.gz | xargs -n 1 basename -s .tar.gz)
+DATASETS_v1 := $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),dataset1,$(shell ls -d _data/v1/profiles/dataset* | xargs -n 1 basename))
+PROFILES_v1 = $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),001,$(shell ls _data/v1/profiles/$(1)/*.tar.gz | xargs -n 1 basename -s .tar.gz))
 SLURRIES_v1 := G50 G45 G40 G40IPA
 
-.PHONY: all dataset-v1 examples test clean
+.PHONY: all dataset-v1 examples-v1 clean
 
-all: dataset-v1 examples
+all:
 
 dataset-v1: \
 datasets/v1/pv.csv \
@@ -16,9 +16,7 @@ datasets/v1/datapackage.json \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile).h5)) \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile)-Mean.h5))
 
-examples: $(wildcard examples/v1/*.ipynb)
-
-test: datasets/v1/profiles/dataset1/001-Mean.h5 _temp/v1/pv/dataset1.csv
+examples-v1: $(wildcard examples/v1/*.ipynb)
 
 clean:
 	rm -rf _temp datasets/v*

@@ -6,45 +6,52 @@ if ! ./setup.sh; then
   exit 1
 fi
 
-case "${DATASET_MODE}" in
-  test)
-    make_targets="test examples"
+make_targets="dataset-v1"
+case "${BUILD_MODE:-test}" in
+  build)
+    if ! HEAVYEDGE_TEST_MODE=0 make -j ${CPU_REQUEST} ${make_targets}; then
+      exit 2
+    fi
     ;;
-  post)
-    if [ -z "${DATASET_REVISION:-}" ] || [ -z "${DATASET_REPO_ID:-}" ]; then
-      echo "::error::Missing Hugging Face dataset revision or repository." >&2
-      exit 2
-    fi
-    if [ -z "${HUGGINGFACE_TOKEN:-}" ]; then
-      echo "::error::Missing Hugging Face token for dataset download." >&2
-      exit 2
-    fi
-
-    dataset_overlay_dir="$(mktemp -d)"
-    trap 'rm -rf "$dataset_overlay_dir"' EXIT INT TERM
-    if [ -d datasets ]; then
-      cp -a datasets/. "$dataset_overlay_dir/"
-    fi
-    if ! hf download "${DATASET_REPO_ID}" \
+  pull)
+    overlay_dir="$(mktemp -d)"
+    trap 'rm -rf "$overlay_dir"' EXIT INT TERM
+    cp -a datasets/. "$overlay_dir/"
+    if ! hf download "${UPSTREAM_REPO_ID}" \
         --repo-type dataset \
-        --revision "${DATASET_REVISION}" \
+        --revision "${UPSTREAM_REVISION}" \
         --token "${HUGGINGFACE_TOKEN}" \
         --local-dir datasets; then
       exit 2
     fi
-    cp -a "$dataset_overlay_dir/." datasets/
+    cp -a "$overlay_dir/." datasets/
     rm -rf datasets/.cache/huggingface
-    make_targets="examples"
     ;;
-  release|development)
-    make_targets="all"
+  test)
+    if ! HEAVYEDGE_TEST_MODE=1 make -j ${CPU_REQUEST} ${make_targets}; then
+      exit 2
+    fi
     ;;
   *)
-    echo "::error::Unsupported dataset mode: ${DATASET_MODE}" >&2
+    echo "::error::Unsupported build mode: ${BUILD_MODE}" >&2
     exit 2
     ;;
 esac
 
-if ! make -j ${CPU_REQUEST} ${make_targets}; then
-  exit 3
-fi
+make_targets="examples-v1"
+case "${DOC_BUILD_MODE:-test}" in
+  build)
+    if ! HEAVYEDGE_TEST_MODE=0 make -j ${CPU_REQUEST} ${make_targets}; then
+      exit 3
+    fi
+    ;;
+  test)
+    if ! HEAVYEDGE_TEST_MODE=1 make -j ${CPU_REQUEST} ${make_targets}; then
+      exit 3
+    fi
+    ;;
+  *)
+    echo "::error::Unsupported doc build mode: ${DOC_BUILD_MODE}" >&2
+    exit 3
+    ;;
+esac
