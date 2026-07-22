@@ -38,45 +38,20 @@ case "${BUILD_MODE:-test}" in
     ;;
 esac
 
-# case "${DATASET_MODE}" in
-#   test)
-#     make_targets="test examples"
-#     ;;
-#   post)
-#     if [ -z "${DATASET_REVISION:-}" ] || [ -z "${DATASET_REPO_ID:-}" ]; then
-#       echo "::error::Missing Hugging Face dataset revision or repository." >&2
-#       exit 2
-#     fi
-#     if [ -z "${HUGGINGFACE_TOKEN:-}" ]; then
-#       echo "::error::Missing Hugging Face token for dataset download." >&2
-#       exit 2
-#     fi
-
-#     overlay_dir="$(mktemp -d)"
-#     trap 'rm -rf "$overlay_dir"' EXIT INT TERM
-#     if [ -d datasets ]; then
-#       cp -a datasets/. "$overlay_dir/"
-#     fi
-#     if ! hf download "${DATASET_REPO_ID}" \
-#         --repo-type dataset \
-#         --revision "${DATASET_REVISION}" \
-#         --token "${HUGGINGFACE_TOKEN}" \
-#         --local-dir datasets; then
-#       exit 2
-#     fi
-#     cp -a "$overlay_dir/." datasets/
-#     rm -rf datasets/.cache/huggingface
-#     make_targets="examples"
-#     ;;
-#   release|development)
-#     make_targets="all"
-#     ;;
-#   *)
-#     echo "::error::Unsupported dataset mode: ${DATASET_MODE}" >&2
-#     exit 2
-#     ;;
-# esac
-
-# if ! make -j ${CPU_REQUEST} ${make_targets}; then
-#   exit 3
-# fi
+make_targets="examples-v1"
+case "${DOC_BUILD_MODE:-test}" in
+  build)
+    if ! HEAVYEDGE_TEST_MODE=0 make -j ${CPU_REQUEST} ${make_targets}; then
+      exit 3
+    fi
+    ;;
+  test)
+    if ! HEAVYEDGE_TEST_MODE=1 make -j ${CPU_REQUEST} ${make_targets}; then
+      exit 3
+    fi
+    ;;
+  *)
+    echo "::error::Unsupported doc build mode: ${DOC_BUILD_MODE}" >&2
+    exit 3
+    ;;
+esac
