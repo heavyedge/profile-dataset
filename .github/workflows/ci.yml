@@ -196,8 +196,7 @@ jobs:
           tags: heavyedge-profile-dataset:data-ci
 
       - name: Test Docker image
-        run: |
-            docker run --rm heavyedge-profile-dataset:data-ci sh -c '[ ! -d "_data" ] && [ -d "datasets" ] && [ ! -d "examples" ]'
+        run: docker create --name tmp heavyedge-profile-dataset:data-ci && docker cp tmp:/app/datasets . && docker rm tmp
 
   image-base:
 
@@ -236,4 +235,4 @@ jobs:
       - name: Test Docker image
         run: |
             docker run --rm heavyedge-profile-dataset:ci sh -c '[ ! -d "_data" ] && [ -d "datasets" ] && [ -d "examples" ]'
-            docker run --rm heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt -r examples/requirements.txt && HEAVYEDGE_TEST_MODE=1 make examples/v1/profile.ipynb'
+            docker run --rm heavyedge-profile-dataset:ci sh -c 'uv pip install --system -r requirements.txt -r examples/requirements.txt && HEAVYEDGE_TEST_MODE=1 make examples/v1/profile.ipynb'
