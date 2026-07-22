@@ -64,8 +64,8 @@ You need:
 
 Run the following command:
 
-```
-make dataset-v1
+```sh
+make datasets
 ```
 
 Each `datasets/v*` directory stores preprocessed profiles from the corresponding major version of raw profile dataset.
@@ -84,7 +84,7 @@ You need:
 
 ```sh
 pip install -r examples/requirements.txt
-make examples-v1
+make examples
 ```
 
 ## Contributing
@@ -98,6 +98,14 @@ nbstripout --install --attributes .gitattributes
 git config filter.nbstripout.clean "nbstripout"
 git config filter.nbstripout.smudge cat
 git config filter.nbstripout.required true
+```
+
+### Testing
+
+Setting the `HEAVYEDGE_TEST_MODE` environment variable to `1` builds only a small subset of data for testing purpose.
+
+```sh
+HEAVYEDGE_TEST_MODE=1 make
 ```
 
 ### Versioning policy
