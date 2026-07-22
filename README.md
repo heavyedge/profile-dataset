@@ -4,7 +4,32 @@
 
 Preprocessed edge profile dataset.
 
-## Setup
+Provides:
+  - Coating edge profile data.
+  - Process variables corresponding to each edge profile.
+
+## Usage
+
+This repository provides scripts to preprocess each version of raw dataset and notebooks to visualize the preprocessed data.
+
+### Cloning the repository
+
+You need:
+
+- `git`
+- Python runtime with `pip`
+
+Run the following commands to clone the repository and install the necessary requirements.
+
+```sh
+git clone git@github.com:heavyedge/profile-dataset.git
+cd profile-dataset
+pip install -r requirements.txt
+```
+
+### Downloading the raw dataset (Optional)
+
+Run the following commands to download the raw dataset in the `_data` directory.
 
 ```sh
 export PROFILES_V1_GDRIVE="..."
@@ -12,7 +37,32 @@ export CA_V1_GDRIVE="..."
 ./setup.sh
 ```
 
-## Building the dataset
+### Acquiring the preprocessed data
+
+The preprocessed data built by this project can be acquired by directly downloading from the [dataset repository](https://huggingface.co/datasets/jeesoo9595/heavyedge-profiles).
+Alternatively, you can perform the preprocessing by yourself if you have downloaded the raw dataset.
+
+Either approach creates the preprocessed data in the `datasets` directory.
+
+#### Direct download
+
+You need:
+
+- [Hugging Face CLI](https://huggingface.co/docs/transformers/en/installation)
+
+Run the following command:
+
+```sh
+hf download jeesoo9595/heavyedge-profiles --repo-type dataset --local-dir datasets
+```
+
+#### Building the dataset
+
+You need:
+
+- `make`
+
+Run the following command:
 
 ```
 make dataset-v1
@@ -20,9 +70,20 @@ make dataset-v1
 
 Each `datasets/v*` directory stores preprocessed profiles from the corresponding major version of raw profile dataset.
 
-## Building the notebooks
+### Acquiring the visualization result
+
+Preprocessed data are visualized as notebooks in the `examples` directory.
+
+You can either download the notebooks from the [GitHub release](https://github.com/heavyedge/profile-dataset/releases) artifacts, or build the notebook by yourself if you have acquired the preprocessed data.
+
+#### Building the notebooks
+
+You need:
+
+- `make`
 
 ```sh
+pip install -r examples/requirements.txt
 make examples-v1
 ```
 
