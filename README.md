@@ -114,6 +114,8 @@ HEAVYEDGE_TEST_MODE=1 make
 
 After downloading the raw dataset and building the preprocessed data and examples, build the image with one of the following target:
 
+- `data`
+  - Includes the preprocessed dataset (`datasets`).
 - `dev`
   - Includes the raw dataset (`_data`).
   - Includes the preprocessed dataset (`datasets`).
