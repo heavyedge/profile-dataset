@@ -35,7 +35,7 @@ def parse_release_version(tag):
         raise ValueError(f"Invalid release version tag: {tag}") from error
 
 
-def dataset_tag(tag, version):
+def parse_tag(tag, version):
     tag_prefix = "v" if tag.startswith("v") else ""
     pre = "" if version.pre is None else f"{version.pre[0]}{version.pre[1]}"
     return f"{tag_prefix}{version.major}.{version.minor}.{version.micro}{pre}"
@@ -62,7 +62,7 @@ def main():
                 pass
             elif version.post is not None:
                 build_mode = "pull"
-                upstream_revision = dataset_tag(args.ref_name, version)
+                upstream_revision = parse_tag(args.ref_name, version)
                 upstream_repo_id = "jeesoo9595/heavyedge-profiles"
                 deploy_mode = "true"
                 doc_build_mode = "build"
