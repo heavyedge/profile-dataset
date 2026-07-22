@@ -23,9 +23,8 @@ class BuildStatus(IntEnum):
 
 class DeployStatus(IntEnum):
     SUCCESS = 0
-    DEPLOY_MODE_RESOLUTION_FAILED = 1
-    DEPLOY_FAILED = 2
-    DOC_DEPLOY_FAILED = 3
+    DEPLOY_FAILED = 1
+    DOC_DEPLOY_FAILED = 2
 
 
 class TokenStatus(IntEnum):

@@ -7,9 +7,8 @@
   },
   "deploy": {
     "0": "Deploy completed successfully.",
-    "1": "Failed to resolve deploy mode",
-    "2": "Deploy failed.",
-    "3": "Documentation deploy failed."
+    "1": "Deploy failed.",
+    "2": "Documentation deploy failed."
   },
   "token": {
     "0": "GitHub App token was created successfully.",
