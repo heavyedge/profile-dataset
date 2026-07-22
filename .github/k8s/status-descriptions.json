@@ -2,8 +2,8 @@
   "build": {
     "0": "Build completed successfully.",
     "1": "Setup failed.",
-    "2": "Failed to resolve build mode",
-    "3": "Build failed."
+    "2": "Build failed.",
+    "3": "Doc build failed."
   },
   "deploy": {
     "0": "Deploy completed successfully.",
