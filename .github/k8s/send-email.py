@@ -17,14 +17,15 @@ def env(name, default=""):
 class BuildStatus(IntEnum):
     SUCCESS = 0
     SETUP_FAILED = 1
-    DATASET_MODE_RESOLUTION_FAILED = 2
+    BUILD_MODE_RESOLUTION_FAILED = 2
     BUILD_FAILED = 3
 
 
 class DeployStatus(IntEnum):
     SUCCESS = 0
-    DATASET_UPLOAD_FAILED = 1
-    ARTIFACT_UPLOAD_FAILED = 2
+    DEPLOY_MODE_RESOLUTION_FAILED = 1
+    DEPLOY_FAILED = 2
+    DOC_DEPLOY_FAILED = 3
 
 
 class TokenStatus(IntEnum):
@@ -155,9 +156,10 @@ def build_message(
         if line:
             body_lines.append(line)
 
-    dataset_mode = env("DATASET_MODE", "test")
-    body_lines.append(f"Dry build: {int(dataset_mode == 'test')}")
-    body_lines.append(f"Push dataset: {int(dataset_mode in ('release', 'post'))}")
+    body_lines.append(f"BUILD_MODE: {env('BUILD_MODE')}")
+    body_lines.append(f"DEPLOY_MODE: {env('DEPLOY_MODE')}")
+    body_lines.append(f"DOC_BUILD_MODE: {env('DOC_BUILD_MODE')}")
+    body_lines.append(f"DOC_DEPLOY_MODE: {env('DOC_DEPLOY_MODE')}")
 
     msg = EmailMessage()
     msg["From"] = env("SMTP_NOTIFY_SENDER", "heavyedge-bot@users.noreply.github.com")

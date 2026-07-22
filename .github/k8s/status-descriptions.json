@@ -2,13 +2,14 @@
   "build": {
     "0": "Build completed successfully.",
     "1": "Setup failed.",
-    "2": "Failed to resolve dataset mode",
+    "2": "Failed to resolve build mode",
     "3": "Build failed."
   },
   "deploy": {
     "0": "Deploy completed successfully.",
-    "1": "Dataset upload failed.",
-    "2": "Release artifact upload failed."
+    "1": "Failed to resolve deploy mode",
+    "2": "Deploy failed.",
+    "3": "Documentation deploy failed."
   },
   "token": {
     "0": "GitHub App token was created successfully.",
