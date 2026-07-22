@@ -1,4 +1,3 @@
-
 [flake8]
 doctests = True
 # compatibility with black
