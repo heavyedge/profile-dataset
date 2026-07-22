@@ -196,7 +196,7 @@ jobs:
           tags: heavyedge-profile-dataset:data-ci
 
       - name: Test Docker image
-        run: docker create --name tmp heavyedge-profile-dataset:data-ci && docker cp tmp:/app/datasets . && docker rm tmp
+        run: docker create --name tmp heavyedge-profile-dataset:data-ci "" && docker cp tmp:/app/datasets . && docker rm tmp
 
   image-base:
 
