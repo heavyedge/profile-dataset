@@ -21,7 +21,7 @@ class BuildStatus(IntEnum):
     DOC_BUILD_FAILED = 3
 
 
-class DeployStatus(IntEnum):
+class DeployStatus(IntFlag):
     SUCCESS = 0
     DEPLOY_FAILED = 1
     DOC_DEPLOY_FAILED = 2
@@ -93,6 +93,13 @@ def status_line(label, enum_class, value):
     parsed = parse_status(enum_class, value)
     if parsed is None:
         return f"{label} status: {value} UNKNOWN - Unknown status code."
+    if issubclass(enum_class, IntFlag) and parsed != enum_class.SUCCESS:
+        flags = [
+            flag for flag in enum_class if flag != enum_class.SUCCESS and flag in parsed
+        ]
+        names = ", ".join(flag.name for flag in flags)
+        description = ", ".join(STATUS_DESCRIPTIONS[enum_class][flag] for flag in flags)
+        return f"{label} status: {value} {names} - {description}"
     return (
         f"{label} status: {value} {parsed.name} - "
         f"{STATUS_DESCRIPTIONS[enum_class][parsed]}"

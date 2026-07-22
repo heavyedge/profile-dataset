@@ -59,14 +59,12 @@ spec:
 
               deploy_status=0
               sh .github/k8s/deploy.sh || deploy_status=$?
-              if [ "$deploy_status" -eq 0 ]; then
-                deploy_conclusion=success
-                doc_deploy_conclusion=success
-              elif [ "$deploy_status" -eq 2 ]; then
-                deploy_conclusion=success
-                doc_deploy_conclusion=failure
-              else
+              deploy_conclusion=success
+              doc_deploy_conclusion=success
+              if [ $((deploy_status & 1)) -ne 0 ]; then
                 deploy_conclusion=failure
+              fi
+              if [ $((deploy_status & 2)) -ne 0 ]; then
                 doc_deploy_conclusion=failure
               fi
               export DEPLOY_CONCLUSION="$deploy_conclusion"
