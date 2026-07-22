@@ -118,8 +118,6 @@ The `Dockerfile` is provided to facilitate data distribution without sharing sec
 
 After downloading the raw dataset and building the preprocessed data and examples, build the image with one of the following targets:
 
-- `data`
-  - Includes the preprocessed dataset (`datasets`).
 - `base` (default)
   - Includes the preprocessed dataset (`datasets`).
   - Includes the built examples (`examples`).
