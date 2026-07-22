@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 
 import argparse
-import json
 import os
 import smtplib
 import sys
 from email.message import EmailMessage
 from enum import IntEnum, IntFlag
-from pathlib import Path
 
 
 def env(name, default=""):
@@ -53,31 +51,6 @@ class ContainerExitCode(IntFlag):
     DISPATCH_FAILED = 8
 
 
-STATUS_DESCRIPTION_SECTIONS = {
-    BuildStatus: "build",
-    DeployStatus: "deploy",
-    TokenStatus: "token",
-    DispatchStatus: "dispatch",
-}
-
-
-def load_status_descriptions():
-    path = Path(__file__).with_name("status-descriptions.json")
-    with path.open(encoding="utf-8") as f:
-        raw_descriptions = json.load(f)
-
-    descriptions = {}
-    for enum_class, section in STATUS_DESCRIPTION_SECTIONS.items():
-        descriptions[enum_class] = {
-            enum_class(int(key)): description
-            for key, description in raw_descriptions[section].items()
-        }
-    return descriptions
-
-
-STATUS_DESCRIPTIONS = load_status_descriptions()
-
-
 def parse_status(enum_class, value):
     if value is None:
         return None
@@ -98,12 +71,8 @@ def status_line(label, enum_class, value):
             flag for flag in enum_class if flag != enum_class.SUCCESS and flag in parsed
         ]
         names = ", ".join(flag.name for flag in flags)
-        description = ", ".join(STATUS_DESCRIPTIONS[enum_class][flag] for flag in flags)
-        return f"{label} status: {value} {names} - {description}"
-    return (
-        f"{label} status: {value} {parsed.name} - "
-        f"{STATUS_DESCRIPTIONS[enum_class][parsed]}"
-    )
+        return f"{label} status: {value} {names}"
+    return f"{label} status: {value} {parsed.name}"
 
 
 def exit_code_line(exit_code):
