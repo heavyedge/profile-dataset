@@ -139,10 +139,10 @@ def build_message(
     token_status=None,
     dispatch_status=None,
 ):
-    repository = env("GITHUB_REPOSITORY", "heavyedge/profile-dataset")
-    ref_name = env("GITHUB_REF_NAME", "")
+    repository = env("GITHUB_REPOSITORY")
+    ref_name = env("GITHUB_REF_NAME")
 
-    job_name = env("KUBERNETES_JOB_NAME", "heavyedge-profile-dataset")
+    job_name = env("KUBERNETES_JOB_NAME")
 
     body_lines = [
         f"Deployment status: {status}",
@@ -168,7 +168,6 @@ def build_message(
     body_lines.append(f"DOC_DEPLOY_MODE: {env('DOC_DEPLOY_MODE')}")
 
     msg = EmailMessage()
-    msg["From"] = env("SMTP_NOTIFY_SENDER", "heavyedge-bot@users.noreply.github.com")
     msg["To"] = env("SMTP_NOTIFY_RECIPIENT")
     msg["Subject"] = f"[{status}] {job_name}"
     msg.set_content("\n".join(body_lines) + "\n")
