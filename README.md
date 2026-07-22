@@ -7,6 +7,7 @@ Preprocessed edge profile dataset.
 Provides:
   - Coating edge profile data.
   - Process variables corresponding to each edge profile.
+  - Example notebooks
 
 ## Usage
 
@@ -70,11 +71,14 @@ make datasets
 
 Each `datasets/v*` directory stores preprocessed profiles from the corresponding major version of raw profile dataset.
 
-### Acquiring the visualization result
+### Acquiring the built examples
 
 The preprocessed data are visualized as notebooks in the `examples` directory.
 
-You can either download the notebooks from the [GitHub release](https://github.com/heavyedge/profile-dataset/releases) artifacts, or build the notebooks yourself if you have acquired the preprocessed data.
+The notebook outputs are stripped before being stored in this repository.
+To check their outputs, you must acquire the built example notebooks.
+
+You can either download the built notebooks from the [GitHub release](https://github.com/heavyedge/profile-dataset/releases) artifacts, or build the notebooks yourself if you have acquired the preprocessed data.
 
 #### Building the notebooks
 
