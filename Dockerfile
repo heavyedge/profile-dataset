@@ -24,8 +24,7 @@ LABEL org.opencontainers.image.created="${IMAGE_CREATED}" \
       org.opencontainers.image.description="Development environment for heavyedge/profile-dataset."
 
 
-FROM python:slim AS data
-COPY --from=uv /uv /uvx /usr/local/bin/
+FROM scratch AS data
 
 WORKDIR /app
 COPY datasets ./datasets
