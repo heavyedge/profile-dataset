@@ -1,10 +1,13 @@
 .ONESHELL:
+.SECONDEXPANSION:
+.SECONDARY:
+.PHONY: all datasets examples dataset-v1 examples-v1 clean .FORCE
+# Dummy target to ensure that prerequisite files are built.
+.FORCE:
 
 DATASETS_v1 := $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),dataset1,$(shell ls -d _data/v1/profiles/dataset* | xargs -n 1 basename))
 PROFILES_v1 = $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),001,$(shell ls _data/v1/profiles/$(1)/*.tar.gz | xargs -n 1 basename -s .tar.gz))
 SLURRIES_v1 := G50 G45 G40 G40IPA
-
-.PHONY: all datasets examples dataset-v1 examples-v1 clean .FORCE
 
 all: datasets examples
 
@@ -17,15 +20,17 @@ datasets/v1/pv.csv \
 $(foreach slurry,$(SLURRIES_v1),datasets/v1/contact_angles/$(slurry).csv) \
 $(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosities/$(slurry).csv) \
 datasets/v1/datapackage.json \
-$(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile).h5)) \
-$(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/mean_profiles/$(dataset)/$(profile).h5))
+$(foreach dataset,$(DATASETS_v1),datasets/v1/profiles/$(dataset).tar.gz) \
+$(foreach dataset,$(DATASETS_v1),datasets/v1/mean_profiles/$(dataset).tar.gz)
 
 examples-v1: $(wildcard examples/v1/*.ipynb)
 
 clean:
 	rm -rf _temp datasets/v*
 
-datasets/v1/profiles/%.h5: _data/v1/profiles/%.tar.gz config/v1/prep.yml
+# Dataset
+
+_temp/v1/profiles/%.h5: _data/v1/profiles/%.tar.gz config/v1/prep.yml
 	@mkdir -p $(@D)
 	rawdata=$$(mktemp -d)
 	trap 'rm -rf $$rawdata' EXIT INT TERM
@@ -34,13 +39,27 @@ datasets/v1/profiles/%.h5: _data/v1/profiles/%.tar.gz config/v1/prep.yml
 	heavyedge prep --type=csvs --name=$* $$rawdata/$$subdir/HEAD_A --config $(lastword $^) -o $@
 	echo 'Created $@'
 
-datasets/v1/mean_profiles/%.h5: datasets/v1/profiles/%.h5 config/v1/mean.yml
+define PROFILES_TARGZ_v1
+datasets/v1/profiles/$(1).tar.gz: $(foreach profile,$(call PROFILES_v1,$(1)),_temp/v1/profiles/$(1)/$(profile).h5)
+	mkdir -p $$(@D)
+	tar -czf $$@ -C _temp/v1/profiles/$(1) $$(notdir $$^)
+endef
+$(foreach dataset,$(DATASETS_v1),$(eval $(call PROFILES_TARGZ_v1,$(dataset))))
+
+_temp/v1/mean_profiles/%.h5: _temp/v1/profiles/%.h5 config/v1/mean.yml
 	@mkdir -p $(@D)
 	@filled=$$(mktemp)
 	trap 'rm -rf $$filled' EXIT INT TERM
 	heavyedge fill $< --config $(lastword $^) -o $$filled
 	heavyedge mean $$filled --config $(lastword $^) -o $@
 	echo 'Created $@'
+
+define MEANPROFILES_TARGZ_v1
+datasets/v1/mean_profiles/$(1).tar.gz: $(foreach profile,$(call PROFILES_v1,$(1)),_temp/v1/mean_profiles/$(1)/$(profile).h5)
+	@mkdir -p $$(@D)
+	tar -czf $$@ -C _temp/v1/mean_profiles/$(1) $$(notdir $$^)
+endef
+$(foreach dataset,$(DATASETS_v1),$(eval $(call MEANPROFILES_TARGZ_v1,$(dataset))))
 
 datasets/v1/datapackage.json: config/v1/datapackage.json
 	mkdir -p $(@D)
@@ -82,6 +101,16 @@ datasets/v1/pv.csv: $(foreach dataset, $(DATASETS_v1), _temp/v1/pv/$(dataset).cs
 	mkdir -p $(@D)
 	python3 -c "import pandas as pd; pd.concat([pd.read_csv(path) for path in '$^'.split(' ')]).to_csv('$@', index=False)"
 
+# Examples
+
+datasets/v1/profiles/dataset1/001.h5: datasets/v1/profiles/dataset1.tar.gz
+	@mkdir -p $(@D)
+	@tar -xzf $< -C $(@D) $(notdir $@)
+
+datasets/v1/mean_profiles/dataset1/001.h5: datasets/v1/mean_profiles/dataset1.tar.gz
+	@mkdir -p $(@D)
+	@tar -xzf $< -C $(@D) $(notdir $@)
+
 examples/v1/profile.ipynb: datasets/v1/profiles/dataset1/001.h5 datasets/v1/mean_profiles/dataset1/001.h5 .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
 
@@ -93,8 +122,3 @@ examples/v1/viscosity.ipynb: datasets/v1/viscosities/G50.csv datasets/v1/viscosi
 
 examples/v1/dimless.ipynb: datasets/v1/pv.csv datasets/v1/datapackage.json .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
-
-# Dummy target to ensure that prerequisite files are built.
-.FORCE:
-
-.SECONDARY:
