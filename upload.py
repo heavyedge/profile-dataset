@@ -37,6 +37,7 @@ api.upload_folder(
     path_in_repo=".",
     repo_id=REPO,
     repo_type="dataset",
+    ignore_patterns=["*.h5"],
     commit_message=f"Upload version {VERSION}",
 )
 api.create_tag(
