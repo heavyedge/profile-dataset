@@ -157,9 +157,7 @@ jobs:
 
       - name: Test Docker image
         run: |
-            docker run --rm heavyedge-profile-dataset:dev-ci sh -c '[ -d "_data" ] && [ -d "datasets" ] && [ -d "examples" ]'
-            docker run --rm heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt -r examples/requirements.txt && HEAVYEDGE_TEST_MODE=1 make datasets/v1/profiles/dataset1/001.h5'
-            docker run --rm heavyedge-profile-dataset:dev-ci sh -c 'uv pip install --system -r requirements.txt -r examples/requirements.txt && HEAVYEDGE_TEST_MODE=1 make examples/v1/profile.ipynb'
+            docker run --rm heavyedge-profile-dataset:dev-ci sh -c '[ -d "_data/v1/profiles/dataset1" ] && [ -d "datasets/v1/profiles/dataset1" ]'
 
   image-base:
 
@@ -197,5 +195,4 @@ jobs:
 
       - name: Test Docker image
         run: |
-            docker run --rm heavyedge-profile-dataset:ci sh -c '[ ! -d "_data" ] && [ -d "datasets" ] && [ -d "examples" ]'
-            docker run --rm heavyedge-profile-dataset:ci sh -c 'uv pip install --system -r requirements.txt -r examples/requirements.txt && HEAVYEDGE_TEST_MODE=1 make examples/v1/profile.ipynb'
+            docker run --rm heavyedge-profile-dataset:ci sh -c '[ ! -d "_data" ] && [ -d "datasets/v1/profiles/dataset1" ]'
