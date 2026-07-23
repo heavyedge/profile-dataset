@@ -14,17 +14,17 @@
       "name": "Profiles",
       "path": "profiles/",
       "title": "Slot-die coating edge profiles",
-      "description": "Edge profile data measured from slot-die coating experiments. Each profile is stored in a separate HDF5 file.",
-      "format": "hdf5",
-      "mediatype": "application/vnd.hdfgroup.hdf5"
+      "description": "Edge profile data measured from slot-die coating experiments. Each set of profiles are stored in a separate HDF5 file.",
+      "format": "tar.gz",
+      "mediatype": "application/gzip"
     },
     {
       "name": "Mean profiles",
       "path": "mean_profiles/",
       "title": "Mean slot-die coating edge profiles",
-      "description": "Mean profiles of each entry in 'profiles'.",
-      "format": "hdf5",
-      "mediatype": "application/vnd.hdfgroup.hdf5"
+      "description": "Mean profiles of each entry in 'profiles'. Each mean profile is stored in a separate HDF5 file.",
+      "format": "tar.gz",
+      "mediatype": "application/gzip"
     },
     {
       "name": "Contact angles",

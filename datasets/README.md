@@ -11,4 +11,21 @@ language: en
 Profile data can be loaded using [heavyedge](https://pypi.org/project/heavyedge/) Python package.
 Refer to the examples in the [source release](https://github.com/heavyedge/profile-dataset/releases).
 
-- `v1` : Slot-die coating dataset collected by Yoon and Min (2026)
+## v1
+
+Slot-die coating dataset collected by Yoon and Min (2026).
+
+Profiles are distributed as `dataset*.tar.gz` archives.
+To unpack all profiles, run:
+
+```sh
+for directory in v1/profiles v1/mean_profiles; do
+    for archive in "$directory"/*.tar.gz; do
+        [ -e "$archive" ] || continue
+        dataset=${archive##*/}
+        dataset=${dataset%.tar.gz}
+        mkdir -p "$directory/$dataset"
+        tar -xzf "$archive" -C "$directory/$dataset"
+    done
+done
+```
