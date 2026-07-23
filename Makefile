@@ -4,7 +4,7 @@ DATASETS_v1 := $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),dataset1,$(shell ls -d _d
 PROFILES_v1 = $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),001,$(shell ls _data/v1/profiles/$(1)/*.tar.gz | xargs -n 1 basename -s .tar.gz))
 SLURRIES_v1 := G50 G45 G40 G40IPA
 
-.PHONY: all datasets examples dataset-v1 examples-v1 clean
+.PHONY: all datasets examples dataset-v1 examples-v1 clean .FORCE
 
 all: datasets examples
 
@@ -18,7 +18,7 @@ $(foreach slurry,$(SLURRIES_v1),datasets/v1/contact_angles/$(slurry).csv) \
 $(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosities/$(slurry).csv) \
 datasets/v1/datapackage.json \
 $(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile).h5)) \
-$(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/profiles/$(dataset)/$(profile)-Mean.h5))
+$(foreach dataset,$(DATASETS_v1),$(foreach profile,$(call PROFILES_v1,$(dataset)),datasets/v1/mean_profiles/$(dataset)/$(profile).h5))
 
 examples-v1: $(wildcard examples/v1/*.ipynb)
 
@@ -34,7 +34,8 @@ datasets/v1/profiles/%.h5: _data/v1/profiles/%.tar.gz config/v1/prep.yml
 	heavyedge prep --type=csvs --name=$* $$rawdata/$$subdir/HEAD_A --config $(lastword $^) -o $@
 	echo 'Created $@'
 
-datasets/v1/profiles/%-Mean.h5: datasets/v1/profiles/%.h5 config/v1/mean.yml
+datasets/v1/mean_profiles/%.h5: datasets/v1/profiles/%.h5 config/v1/mean.yml
+	@mkdir -p $(@D)
 	@filled=$$(mktemp)
 	trap 'rm -rf $$filled' EXIT INT TERM
 	heavyedge fill $< --config $(lastword $^) -o $$filled
@@ -81,16 +82,19 @@ datasets/v1/pv.csv: $(foreach dataset, $(DATASETS_v1), _temp/v1/pv/$(dataset).cs
 	mkdir -p $(@D)
 	python3 -c "import pandas as pd; pd.concat([pd.read_csv(path) for path in '$^'.split(' ')]).to_csv('$@', index=False)"
 
-examples/v1/profile.ipynb: datasets/v1/profiles/dataset1/001.h5 datasets/v1/profiles/dataset1/001-Mean.h5
+examples/v1/profile.ipynb: datasets/v1/profiles/dataset1/001.h5 datasets/v1/mean_profiles/dataset1/001.h5 .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
 
-examples/v1/contact_angle.ipynb: datasets/v1/contact_angles/G50.csv datasets/v1/contact_angles/G45.csv datasets/v1/contact_angles/G40.csv datasets/v1/contact_angles/G40IPA.csv
+examples/v1/contact_angle.ipynb: datasets/v1/contact_angles/G50.csv datasets/v1/contact_angles/G45.csv datasets/v1/contact_angles/G40.csv datasets/v1/contact_angles/G40IPA.csv .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
 
-examples/v1/viscosity.ipynb: datasets/v1/viscosities/G50.csv datasets/v1/viscosities/G45.csv datasets/v1/viscosities/G40.csv datasets/v1/viscosities/G40IPA.csv datasets/v1/pv.csv
+examples/v1/viscosity.ipynb: datasets/v1/viscosities/G50.csv datasets/v1/viscosities/G45.csv datasets/v1/viscosities/G40.csv datasets/v1/viscosities/G40IPA.csv datasets/v1/pv.csv .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
 
-examples/v1/dimless.ipynb: datasets/v1/pv.csv datasets/v1/datapackage.json
+examples/v1/dimless.ipynb: datasets/v1/pv.csv datasets/v1/datapackage.json .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
+
+# Dummy target to ensure that prerequisite files are built.
+.FORCE:
 
 .SECONDARY:
