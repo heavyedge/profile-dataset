@@ -43,11 +43,15 @@ def load_field_units(path):
         datapackage = json.load(f)
 
     resource = next(
-        (resource for resource in datapackage["resources"] if resource["name"] == "pv"),
+        (
+            resource
+            for resource in datapackage["resources"]
+            if resource["name"] == "Process variables"
+        ),
         None,
     )
     if resource is None:
-        raise ValueError(f"No pv resource found in {path}")
+        raise ValueError(f"No resource found in {path}")
 
     return {
         field["name"]: field["unit"]

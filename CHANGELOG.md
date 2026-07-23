@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Resource names in `datapackage.json` are changed for more human readable format.
 - `v1/profiles/*-Mean.h5` files are moved and renamed to `v1/mean_profiles/*.h5`.
 
 ## [v1.0.0rc0] - 2026-07-24
