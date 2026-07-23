@@ -28,6 +28,8 @@ examples-v1: $(wildcard examples/v1/*.ipynb)
 clean:
 	rm -rf _temp datasets/v*
 
+# Dataset
+
 _temp/v1/profiles/%.h5: _data/v1/profiles/%.tar.gz config/v1/prep.yml
 	@mkdir -p $(@D)
 	rawdata=$$(mktemp -d)
@@ -39,8 +41,8 @@ _temp/v1/profiles/%.h5: _data/v1/profiles/%.tar.gz config/v1/prep.yml
 
 define PROFILES_TARGZ_v1
 datasets/v1/profiles/$(1).tar.gz: $(foreach profile,$(call PROFILES_v1,$(1)),_temp/v1/profiles/$(1)/$(profile).h5)
-	@mkdir -p $$(@D)
-	@tar -czf $$@ -C _temp/v1/profiles $(1)
+	mkdir -p $$(@D)
+	tar -czf $$@ -C _temp/v1/profiles/$(1) $$(notdir $$^)
 endef
 $(foreach dataset,$(DATASETS_v1),$(eval $(call PROFILES_TARGZ_v1,$(dataset))))
 
@@ -55,7 +57,7 @@ _temp/v1/mean_profiles/%.h5: _temp/v1/profiles/%.h5 config/v1/mean.yml
 define MEANPROFILES_TARGZ_v1
 datasets/v1/mean_profiles/$(1).tar.gz: $(foreach profile,$(call PROFILES_v1,$(1)),_temp/v1/mean_profiles/$(1)/$(profile).h5)
 	@mkdir -p $$(@D)
-	@tar -czf $$@ -C _temp/v1/mean_profiles $(1)
+	tar -czf $$@ -C _temp/v1/mean_profiles/$(1) $$(notdir $$^)
 endef
 $(foreach dataset,$(DATASETS_v1),$(eval $(call MEANPROFILES_TARGZ_v1,$(dataset))))
 
@@ -98,6 +100,16 @@ _temp/v1/pv/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _temp/v1
 datasets/v1/pv.csv: $(foreach dataset, $(DATASETS_v1), _temp/v1/pv/$(dataset).csv)
 	mkdir -p $(@D)
 	python3 -c "import pandas as pd; pd.concat([pd.read_csv(path) for path in '$^'.split(' ')]).to_csv('$@', index=False)"
+
+# Examples
+
+datasets/v1/profiles/dataset1/001.h5: datasets/v1/profiles/dataset1.tar.gz
+	@mkdir -p $(@D)
+	@tar -xzf $< -C $(@D) $(notdir $@)
+
+datasets/v1/mean_profiles/dataset1/001.h5: datasets/v1/mean_profiles/dataset1.tar.gz
+	@mkdir -p $(@D)
+	@tar -xzf $< -C $(@D) $(notdir $@)
 
 examples/v1/profile.ipynb: datasets/v1/profiles/dataset1/001.h5 datasets/v1/mean_profiles/dataset1/001.h5 .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
