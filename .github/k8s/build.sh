@@ -5,6 +5,9 @@ set -eu
 if ! ./setup.sh; then
   exit 1
 fi
+if ! curl -LsSf https://hf.co/cli/install.sh | bash; then
+  exit 1
+fi
 
 make_targets="dataset-v1"
 case "${BUILD_MODE:-test}" in
@@ -17,7 +20,7 @@ case "${BUILD_MODE:-test}" in
     overlay_dir="$(mktemp -d)"
     trap 'rm -rf "$overlay_dir"' EXIT INT TERM
     cp -a datasets/. "$overlay_dir/"
-    if ! hf download "${UPSTREAM_REPO_ID}" \
+    if ! "$HOME/.local/bin/hf" download "${UPSTREAM_REPO_ID}" \
         --repo-type dataset \
         --revision "${UPSTREAM_REVISION}" \
         --token "${HUGGINGFACE_TOKEN}" \

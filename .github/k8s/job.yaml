@@ -44,8 +44,15 @@ spec:
 
               python .github/k8s/send-email.py --status "Started" || true
 
+              build_log_dir="$(mktemp -d)"
+              build_log_pipe="$build_log_dir/output"
+              mkfifo "$build_log_pipe"
+              tee < "$build_log_pipe" &
+              build_log_pid=$!
               build_status=0
-              sh .github/k8s/build.sh || build_status=$?
+              sh .github/k8s/build.sh >"$build_log_pipe" 2>&1 || build_status=$?
+              wait "$build_log_pid" || true
+              rm -rf "$build_log_dir"
               if [ "$build_status" -eq 0 ]; then
                 build_conclusion=success
               else
@@ -57,15 +64,29 @@ spec:
               GITHUB_APP_TOKEN="$(sh .github/k8s/app-token.sh)" || token_status=$?
               export GITHUB_APP_TOKEN
 
-              deploy_status=0
-              sh .github/k8s/deploy.sh || deploy_status=$?
               deploy_conclusion=success
               doc_deploy_conclusion=success
-              if [ $((deploy_status & 1)) -ne 0 ]; then
-                deploy_conclusion=failure
-              fi
-              if [ $((deploy_status & 2)) -ne 0 ]; then
-                doc_deploy_conclusion=failure
+              if [ "$build_status" -ne 0 ]; then
+                deploy_status=1
+                deploy_conclusion=skipped
+                doc_deploy_conclusion=skipped
+                echo "Skipping deployment because the build failed."
+              else
+                deploy_log_dir="$(mktemp -d)"
+                deploy_log_pipe="$deploy_log_dir/output"
+                mkfifo "$deploy_log_pipe"
+                tee < "$deploy_log_pipe" &
+                deploy_log_pid=$!
+                deploy_status=0
+                sh .github/k8s/deploy.sh >"$deploy_log_pipe" 2>&1 || deploy_status=$?
+                wait "$deploy_log_pid" || true
+                rm -rf "$deploy_log_dir"
+                if [ $((deploy_status & 2)) -ne 0 ]; then
+                  deploy_conclusion=failure
+                fi
+                if [ $((deploy_status & 4)) -ne 0 ]; then
+                  doc_deploy_conclusion=failure
+                fi
               fi
               export DEPLOY_CONCLUSION="$deploy_conclusion"
               export DOC_DEPLOY_CONCLUSION="$doc_deploy_conclusion"
@@ -80,7 +101,7 @@ spec:
               if [ "$token_status" -ne 0 ]; then
                 exit_code=$((exit_code + 2))
               fi
-              if [ "$deploy_status" -ne 0 ]; then
+              if [ $((deploy_status & 6)) -ne 0 ]; then
                 exit_code=$((exit_code + 4))
               fi
               if [ "$dispatch_status" -ne 0 ]; then
