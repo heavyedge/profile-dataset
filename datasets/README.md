@@ -3,9 +3,9 @@ license: cc-by-4.0
 language: en
 ---
 
-[![GitHub repository](https://img.shields.io/badge/github-repo-blue?logo=github)](https://github.com/heavyedge/profile-dataset)
+# Edge profile dataset
 
-Heavy edge profile dataset.
+[![GitHub repository](https://img.shields.io/badge/github-repo-blue?logo=github)](https://github.com/heavyedge/profile-dataset)
 
 Profile data can be loaded using [heavyedge](https://pypi.org/project/heavyedge/) Python package.
 Refer to the examples in the [source release](https://github.com/heavyedge/profile-dataset/releases).
