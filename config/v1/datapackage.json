@@ -11,7 +11,7 @@
 
   "resources": [
     {
-      "name": "profiles",
+      "name": "Profiles",
       "path": "profiles/",
       "title": "Slot-die coating edge profiles",
       "description": "Edge profile data measured from slot-die coating experiments. Each profile is stored in a separate HDF5 file.",
@@ -19,7 +19,15 @@
       "mediatype": "application/vnd.hdfgroup.hdf5"
     },
     {
-      "name": "contact_angles",
+      "name": "Mean profiles",
+      "path": "mean_profiles/",
+      "title": "Mean slot-die coating edge profiles",
+      "description": "Mean profiles of each entry in 'profiles'.",
+      "format": "hdf5",
+      "mediatype": "application/vnd.hdfgroup.hdf5"
+    },
+    {
+      "name": "Contact angles",
       "type": "table",
       "path": "contact_angles/",
       "schema": {
@@ -70,7 +78,7 @@
       "mediatype": "text/csv"
     },
     {
-      "name": "viscosities",
+      "name": "Viscosities",
       "type": "table",
       "path": "viscosities/",
       "schema": {
@@ -105,7 +113,7 @@
       "mediatype": "text/csv"
     },
     {
-      "name": "pv",
+      "name": "Process variables",
       "type": "table",
       "path": "pv.csv",
       "schema": {
