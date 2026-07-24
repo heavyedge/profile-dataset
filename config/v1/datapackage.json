@@ -115,7 +115,7 @@
     {
       "name": "Process variables",
       "type": "table",
-      "path": "pv.csv",
+      "path": "process_variables",
       "schema": {
         "primaryKey": "name",
         "missingValues": [""],
@@ -123,7 +123,7 @@
           {
             "name": "name",
             "type": "string",
-            "description": "Unique experiment identifier, prefixed with the source dataset name.",
+            "description": "Unique experiment identifier.",
             "constraints": {"required": true, "unique": true}
           },
           {

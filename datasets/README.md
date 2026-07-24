@@ -15,7 +15,7 @@ Refer to the examples in the [source release](https://github.com/heavyedge/profi
 
 Slot-die coating dataset collected by Yoon and Min (2026).
 
-Profiles are distributed as `dataset*.tar.gz` archives.
+Profiles are stored as `dataset*.tar.gz` archives.
 To unpack all profiles, run:
 
 ```sh

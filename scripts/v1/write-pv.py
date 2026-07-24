@@ -66,7 +66,7 @@ field_units = load_field_units(args.datapackage)
 
 pv = load_pv(args.index)
 if args.dataset is not None:
-    pv["Name"] = pv["Name"].apply(lambda x: f"{args.dataset}/{x}")
+    pv["Name"] = pv["Name"]
 
 VISCOSITY_NAMES = dict(
     G50="HighViscosity",
