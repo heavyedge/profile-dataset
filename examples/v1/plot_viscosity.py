@@ -13,9 +13,9 @@ MARKERS = dict(
 )
 
 
-def plot_viscosity(viscosity_files, pv_file):
-    pv = pd.read_csv(pv_file)
-    process_shear_rates = pv["shear_rate"].dropna()
+def plot_viscosity(viscosity_files, pv_files):
+    pvs = [pd.read_csv(pv_file) for pv_file in pv_files]
+    process_shear_rates = pd.concat([pv["shear_rate"].dropna() for pv in pvs])
     shear_rate_min = process_shear_rates.min()
     shear_rate_max = process_shear_rates.max()
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Plot viscosity data.")
     parser.add_argument("viscosity", type=pathlib.Path, nargs="*", help="csv files")
     parser.add_argument(
-        "--pv", type=pathlib.Path, required=True, help="Process variable csv file"
+        "--pv", type=pathlib.Path, nargs="+", help="Process variable csv files"
     )
     parser.add_argument("-o", "--out", type=pathlib.Path, help="Output image file")
     args = parser.parse_args()

@@ -16,17 +16,20 @@ datasets: dataset-v1
 examples: examples-v1
 
 dataset-v1: \
-datasets/v1/pv.csv \
+$(foreach dataset,$(DATASETS_v1),datasets/v1/process_variables/$(dataset).csv) \
 $(foreach slurry,$(SLURRIES_v1),datasets/v1/contact_angles/$(slurry).csv) \
 $(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosities/$(slurry).csv) \
-datasets/v1/datapackage.json \
 $(foreach dataset,$(DATASETS_v1),datasets/v1/profiles/$(dataset).tar.gz) \
 $(foreach dataset,$(DATASETS_v1),datasets/v1/mean_profiles/$(dataset).tar.gz)
 
 examples-v1: $(wildcard examples/v1/*.ipynb)
 
 clean:
-	rm -rf _temp datasets/v*
+	rm -rf _temp
+	for dataset_dir in datasets/v*; do
+		[ -d "$$dataset_dir" ] || continue
+		find "$$dataset_dir" -mindepth 1 -maxdepth 1 ! -name datapackage.json -exec rm -rf -- {} +
+	done
 
 # Dataset
 
@@ -61,9 +64,9 @@ datasets/v1/mean_profiles/$(1).tar.gz: $(foreach profile,$(call PROFILES_v1,$(1)
 endef
 $(foreach dataset,$(DATASETS_v1),$(eval $(call MEANPROFILES_TARGZ_v1,$(dataset))))
 
-datasets/v1/datapackage.json: config/v1/datapackage.json
+datasets/v1/process_variables/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _temp/v1/Viscosities.csv _data/v1/SlurryProperties _temp/v1/ContactAngles.yml datasets/v1/datapackage.json
 	mkdir -p $(@D)
-	cp $< $@
+	python3 $^ --dataset=$* -o $@
 
 datasets/v1/viscosities/G50.csv: scripts/v1/write-viscosity.py _data/v1/SlurryViscosities/Ascending/high_viscosity.csv _data/v1/SlurryViscosities/Descending/high_viscosity.csv
 	mkdir -p $(@D)
@@ -93,14 +96,6 @@ _temp/v1/ContactAngles.yml: scripts/v1/write-ca.py datasets/v1/contact_angles/G5
 	mkdir -p $(@D)
 	python3 $^ --slurries HighViscosity Standard LowViscosity LowSurfaceTension -o $@
 
-_temp/v1/pv/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _temp/v1/Viscosities.csv _data/v1/SlurryProperties _temp/v1/ContactAngles.yml datasets/v1/datapackage.json
-	mkdir -p $(@D)
-	python3 $^ --dataset=$* -o $@
-
-datasets/v1/pv.csv: $(foreach dataset, $(DATASETS_v1), _temp/v1/pv/$(dataset).csv)
-	mkdir -p $(@D)
-	python3 -c "import pandas as pd; pd.concat([pd.read_csv(path) for path in '$^'.split(' ')]).to_csv('$@', index=False)"
-
 # Examples
 
 datasets/v1/profiles/dataset1/001.h5: datasets/v1/profiles/dataset1.tar.gz
@@ -117,8 +112,8 @@ examples/v1/profile.ipynb: datasets/v1/profiles/dataset1/001.h5 datasets/v1/mean
 examples/v1/contact_angle.ipynb: datasets/v1/contact_angles/G50.csv datasets/v1/contact_angles/G45.csv datasets/v1/contact_angles/G40.csv datasets/v1/contact_angles/G40IPA.csv .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
 
-examples/v1/viscosity.ipynb: datasets/v1/viscosities/G50.csv datasets/v1/viscosities/G45.csv datasets/v1/viscosities/G40.csv datasets/v1/viscosities/G40IPA.csv datasets/v1/pv.csv .FORCE
+examples/v1/viscosity.ipynb: $(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosities/$(slurry).csv) $(foreach dataset,dataset1 dataset2 dataset3 dataset4 dataset5,datasets/v1/process_variables/$(dataset).csv) .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
 
-examples/v1/dimless.ipynb: datasets/v1/pv.csv datasets/v1/datapackage.json .FORCE
+examples/v1/dimless.ipynb: datasets/v1/process_variables/dataset1.csv datasets/v1/datapackage.json .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
