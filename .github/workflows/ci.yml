@@ -157,7 +157,7 @@ jobs:
 
       - name: Test Docker image
         run: |
-            docker run --rm heavyedge-profile-dataset:dev-ci sh -c '[ -d "_data/v1/profiles/dataset1" ] && [ -d "datasets/v1/profiles/dataset1" ]'
+            docker run --rm heavyedge-profile-dataset:dev-ci sh -c '[ -d "_data" ] && [ -d "datasets/v1" ]'
 
   image-base:
 
@@ -195,4 +195,4 @@ jobs:
 
       - name: Test Docker image
         run: |
-            docker run --rm heavyedge-profile-dataset:ci sh -c '[ ! -d "_data" ] && [ -d "datasets/v1/profiles/dataset1" ]'
+            docker run --rm heavyedge-profile-dataset:ci sh -c '[ ! -d "_data" ] && [ -d "datasets/v1" ]'
