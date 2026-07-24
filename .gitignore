@@ -1,6 +1,7 @@
 _data
 _temp
-datasets/v*
+datasets/v*/*
+!datasets/v*/datapackage.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

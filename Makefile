@@ -19,14 +19,17 @@ dataset-v1: \
 $(foreach dataset,$(DATASETS_v1),datasets/v1/process_variables/$(dataset).csv) \
 $(foreach slurry,$(SLURRIES_v1),datasets/v1/contact_angles/$(slurry).csv) \
 $(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosities/$(slurry).csv) \
-datasets/v1/datapackage.json \
 $(foreach dataset,$(DATASETS_v1),datasets/v1/profiles/$(dataset).tar.gz) \
 $(foreach dataset,$(DATASETS_v1),datasets/v1/mean_profiles/$(dataset).tar.gz)
 
 examples-v1: $(wildcard examples/v1/*.ipynb)
 
 clean:
-	rm -rf _temp datasets/v*
+	rm -rf _temp
+	for dataset_dir in datasets/v*; do
+		[ -d "$$dataset_dir" ] || continue
+		find "$$dataset_dir" -mindepth 1 -maxdepth 1 ! -name datapackage.json -exec rm -rf -- {} +
+	done
 
 # Dataset
 
@@ -60,10 +63,6 @@ datasets/v1/mean_profiles/$(1).tar.gz: $(foreach profile,$(call PROFILES_v1,$(1)
 	tar -czf $$@ -C _temp/v1/mean_profiles/$(1) $$(notdir $$^)
 endef
 $(foreach dataset,$(DATASETS_v1),$(eval $(call MEANPROFILES_TARGZ_v1,$(dataset))))
-
-datasets/v1/datapackage.json: config/v1/datapackage.json
-	mkdir -p $(@D)
-	cp $< $@
 
 datasets/v1/process_variables/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _temp/v1/Viscosities.csv _data/v1/SlurryProperties _temp/v1/ContactAngles.yml datasets/v1/datapackage.json
 	mkdir -p $(@D)
