@@ -140,12 +140,11 @@ N.N.N[{a|b|rc}N][.postN][.devN]
   - Dataset is re-built and deployed to HuggingFace.
   - Examples are re-built using the new dataset and uploaded as release artifacts.
 - Post-release (`*.postN`):
-  - Dataset is deployed to HuggingFace without re-building.
-    This means that only the metadata will change.
-  - Examples are re-built using the previous dataset and uploaded as release artifacts.
+  - Dataset is pulled from the previous release and deployed to HuggingFace.
+  - Examples are re-built using the pulled dataset and uploaded as release artifacts.
 - Developmental release (`*.devN`):
-  - Dataset is not built and not deployed to HuggingFace.
-  - Examples are not built and not uploaded as release artifacts.
+  - Dataset is pulled from the previous release and deployed to HuggingFace.
+  - Examples are re-built using the pulled dataset and uploaded as release artifacts.
 
 > **NOTE**: The major version is raised only when the dataset is changed in a backward-incompatible way.
 > When new data is added, minor version is raised with new `datasets/v*` directory.
