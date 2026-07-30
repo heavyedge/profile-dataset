@@ -110,6 +110,12 @@ test/v1/profile.ipynb: datasets/v1/profiles/dataset1/001.h5 datasets/v1/mean_pro
 	papermill examples/v1/profile.ipynb - -p profiles_path datasets/v1/profiles/dataset1/001.h5 -p mean_profile_path datasets/v1/mean_profiles/dataset1/001.h5 -p out_path $$outfile > /dev/null 2>&1
 	[ -f "$$outfile" ]
 
+test/v1/contact_angle.ipynb: datasets/v1/contact_angles/G50.csv datasets/v1/contact_angles/G45.csv datasets/v1/contact_angles/G40.csv datasets/v1/contact_angles/G40IPA.csv .FORCE
+	outfile=$$(mktemp)
+	trap 'rm -rf $$outfile' EXIT INT TERM
+	papermill examples/v1/contact_angle.ipynb - -p out_path $$outfile > /dev/null 2>&1
+	[ -f "$$outfile" ]
+
 test/v1/dimless.ipynb: datasets/v1/process_variables/dataset1.csv datasets/v1/datapackage.json
 	outfile=$$(mktemp)
 	trap 'rm -rf $$outfile' EXIT INT TERM

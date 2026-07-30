@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.0.0rc2]
 
+### Added
+
+- Notebooks can now be built with parameters using `papermill`.
+
 ### Changed
 
 - Process variables are now stored separately by dataset in `process_variables` directory, instead of being lumbed in `pv.csv`.
