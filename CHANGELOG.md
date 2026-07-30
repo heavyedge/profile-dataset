@@ -5,17 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.0.0rc2]
+## [v1.0.0rc2.post0] - 2026-07-31
 
 ### Added
 
 - Notebooks can now be built with parameters using `papermill`.
 
+## [v1.0.0rc2] - 2026-07-24
+
 ### Changed
 
-- Process variables are now stored separately by dataset in `process_variables` directory, instead of being lumbed in `pv.csv`.
+- Process variables are now stored separately by dataset in `process_variables` directory, instead of being lumped in `pv.csv`.
 
-## [v1.0.0rc1]
+## [v1.0.0rc1] - 2026-07-24
 
 ### Changed
 
