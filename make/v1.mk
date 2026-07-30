@@ -104,7 +104,14 @@ examples/v1/dimless.ipynb: datasets/v1/process_variables/dataset1.csv datasets/v
 
 # Tests
 
+test/v1/profile.ipynb: datasets/v1/profiles/dataset1/001.h5 datasets/v1/mean_profiles/dataset1/001.h5
+	outfile=$$(mktemp)
+	trap 'rm -rf $$outfile' EXIT INT TERM
+	papermill examples/v1/profile.ipynb - -p profiles_path datasets/v1/profiles/dataset1/001.h5 -p mean_profile_path datasets/v1/mean_profiles/dataset1/001.h5 -p out_path $$outfile > /dev/null 2>&1
+	[ -f "$$outfile" ]
+
 test/v1/dimless.ipynb: datasets/v1/process_variables/dataset1.csv datasets/v1/datapackage.json
 	outfile=$$(mktemp)
 	trap 'rm -rf $$outfile' EXIT INT TERM
 	papermill examples/v1/dimless.ipynb - -p pv_csv_path datasets/v1/process_variables/dataset1.csv -p data_csv_path datasets/v1/datapackage.json -p out_path $$outfile > /dev/null 2>&1
+	[ -f "$$outfile" ]
