@@ -1,7 +1,7 @@
 .ONESHELL:
 .SECONDEXPANSION:
 .SECONDARY:
-.PHONY: all datasets examples dataset-v1 examples-v1 clean .FORCE test/v1/dimless.ipynb
+.PHONY: all datasets examples tests dataset-v1 examples-v1 tests-v1 clean .FORCE
 # Dummy target to ensure that prerequisite files are built.
 .FORCE:
 
@@ -9,11 +9,13 @@ DATASETS_v1 := $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),dataset1,$(shell ls -d _d
 PROFILES_v1 = $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),001,$(shell ls _data/v1/profiles/$(1)/*.tar.gz | xargs -n 1 basename -s .tar.gz))
 SLURRIES_v1 := G50 G45 G40 G40IPA
 
-all: datasets examples
+all: datasets examples tests
 
 datasets: dataset-v1
 
 examples: examples-v1
+
+tests: tests-v1
 
 dataset-v1: \
 $(foreach dataset,$(DATASETS_v1),datasets/v1/process_variables/$(dataset).csv) \
@@ -23,6 +25,8 @@ $(foreach dataset,$(DATASETS_v1),datasets/v1/profiles/$(dataset).tar.gz) \
 $(foreach dataset,$(DATASETS_v1),datasets/v1/mean_profiles/$(dataset).tar.gz)
 
 examples-v1: $(wildcard examples/v1/*.ipynb)
+
+tests-v1: $(patsubst examples/%,test/%,$(wildcard examples/v1/*.ipynb))
 
 clean:
 	rm -rf _temp
