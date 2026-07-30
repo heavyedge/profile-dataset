@@ -1,7 +1,7 @@
 .ONESHELL:
 .SECONDEXPANSION:
 .SECONDARY:
-.PHONY: all datasets examples dataset-v1 examples-v1 clean .FORCE
+.PHONY: all datasets examples dataset-v1 examples-v1 clean .FORCE test/v1/dimless.ipynb
 # Dummy target to ensure that prerequisite files are built.
 .FORCE:
 
@@ -117,3 +117,10 @@ examples/v1/viscosity.ipynb: $(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosi
 
 examples/v1/dimless.ipynb: datasets/v1/process_variables/dataset1.csv datasets/v1/datapackage.json .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
+
+# Tests
+
+test/v1/dimless.ipynb: datasets/v1/process_variables/dataset1.csv datasets/v1/datapackage.json
+	outfile=$$(mktemp)
+	trap 'rm -rf $$outfile' EXIT INT TERM
+	papermill examples/v1/dimless.ipynb - -p pv_csv_path datasets/v1/process_variables/dataset1.csv -p data_csv_path datasets/v1/datapackage.json -p out_path $$outfile > /dev/null 2>&1

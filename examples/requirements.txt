@@ -1,3 +1,4 @@
+papermill
 matplotlib
 ipykernel
 nbconvert
