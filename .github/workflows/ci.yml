@@ -114,12 +114,19 @@ jobs:
           python-version: "3.12"
 
       - name: set up the environment
-        run: ./setup.sh && uv pip install --system -r examples/requirements.txt
+        run: ./setup.sh
         env:
           PROFILES_V1_GDRIVE: ${{ secrets.PROFILES_V1_GDRIVE }}
           CA_V1_GDRIVE: ${{ secrets.CA_V1_GDRIVE }}
 
       - run: make ${{ matrix.notebook }}
+
+      - name: run papermill test
+        env:
+          NOTEBOOK: ${{ matrix.notebook }}
+        run: |
+          test_notebook="test/${NOTEBOOK#*/}"
+          make "$test_notebook"
 
   image-dev:
 

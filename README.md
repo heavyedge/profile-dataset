@@ -91,6 +91,13 @@ pip install -r examples/requirements.txt
 make examples
 ```
 
+### Testing
+
+```sh
+pip install -r requirements.txt -r examples/requirements.txt
+make tests
+```
+
 ## Contributing
 
 ### Configuring git
