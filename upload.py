@@ -20,7 +20,7 @@ except InvalidVersion:
 api = HfApi(token=os.getenv("HUGGINGFACE_TOKEN"))
 
 VERSION = args.tag
-REPO = "jeesoo9595/heavyedge-profiles"
+REPO = "heavyedge/profile-dataset"
 
 api.create_repo(
     repo_id=REPO,
