@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- HuggingFace Repository is moved to `heavyedge/profile-dataset`.
+- HuggingFace Repository is moved to `heavyedge/profiles`.
 
 ## [v1.0.0rc2.post0] - 2026-07-31
 

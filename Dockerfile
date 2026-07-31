@@ -21,7 +21,7 @@ LABEL org.opencontainers.image.created="${IMAGE_CREATED}" \
       org.opencontainers.image.revision="${IMAGE_REVISION}" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.title="HeavyEdge Profile Dataset (dev)" \
-      org.opencontainers.image.description="Development environment for heavyedge/profile-dataset."
+      org.opencontainers.image.description="Development environment for profile dataset."
 
 
 FROM python:slim AS base
@@ -44,4 +44,4 @@ LABEL org.opencontainers.image.created="${IMAGE_CREATED}" \
       org.opencontainers.image.revision="${IMAGE_REVISION}" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.title="HeavyEdge Profile Dataset" \
-      org.opencontainers.image.description="Base environment for heavyedge/profile-dataset."
+      org.opencontainers.image.description="Base environment for profile dataset."

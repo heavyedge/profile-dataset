@@ -1,5 +1,5 @@
 # Edge Profile Dataset
-[![HuggingFace](https://img.shields.io/badge/HuggingFace-Dataset-orange?logo=huggingface)](https://huggingface.co/datasets/heavyedge/profile-dataset)
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-Dataset-orange?logo=huggingface)](https://huggingface.co/datasets/heavyedge/profiles)
 [![GitHub repository](https://img.shields.io/badge/github-repo-blue?logo=github)](https://github.com/heavyedge/profile-dataset)
 
 Preprocessed edge profile dataset.
@@ -40,7 +40,7 @@ export CA_V1_GDRIVE="..."
 
 ### Acquiring the preprocessed data
 
-The preprocessed data built by this project can be acquired by downloading it directly from the [dataset repository](https://huggingface.co/datasets/heavyedge/profile-dataset).
+The preprocessed data built by this project can be acquired by downloading it directly from the [dataset repository](https://huggingface.co/datasets/heavyedge/profiles).
 Alternatively, you can perform the preprocessing yourself if you have downloaded the raw dataset.
 
 Either approach creates the preprocessed data in the `datasets` directory.
@@ -54,7 +54,7 @@ You need:
 Run the following command:
 
 ```sh
-hf download heavyedge/profile-dataset --repo-type dataset --local-dir datasets
+hf download heavyedge/profiles --repo-type dataset --local-dir datasets
 ```
 
 #### Building the dataset
