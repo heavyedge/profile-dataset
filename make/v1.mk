@@ -125,5 +125,5 @@ test/v1/viscosity.ipynb: $(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosities
 test/v1/dimless.ipynb: datasets/v1/process_variables/dataset1.csv datasets/v1/datapackage.json
 	outfile=$$(mktemp)
 	trap 'rm -rf $$outfile' EXIT INT TERM
-	papermill examples/v1/dimless.ipynb - -p pv_csv_path datasets/v1/process_variables/dataset1.csv -p data_csv_path datasets/v1/datapackage.json -p out_path $$outfile > /dev/null 2>&1
+	papermill examples/v1/dimless.ipynb - -p pv_path datasets/v1/process_variables/dataset1.csv -p metadata_path datasets/v1/datapackage.json -p out_path $$outfile > /dev/null 2>&1
 	[ -f "$$outfile" ]
