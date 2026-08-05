@@ -2,7 +2,7 @@
 
 DATASETS_v1 := $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),dataset1,$(shell ls -d _data/v1/profiles/dataset* | xargs -n 1 basename))
 PROFILES_v1 = $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),001,$(shell ls _data/v1/profiles/$(1)/*.tar.gz | xargs -n 1 basename -s .tar.gz))
-SLURRIES_v1 := G50 G45 G40 G40IPA
+SLURRIES_v1 := $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),G45,G50 G45 G40 G40IPA)
 
 dataset-v1: \
 $(foreach dataset,$(DATASETS_v1),datasets/v1/profiles/all_profiles/$(dataset).tar.gz) \
@@ -103,16 +103,40 @@ examples/v1/profiles/mean_profiles/dataset1/001.h5: datasets/v1/profiles/mean_pr
 	@mkdir -p $(@D)
 	@tar -xzf $< -C $(@D) ./$(notdir $@)
 
+examples/v1/viscosities.csv: $(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosities/$(slurry).csv)
+	mkdir -p $(@D)
+	python3 -c '
+	from pathlib import Path
+	import pandas as pd
+
+	SLURRIES = dict(G50="G50", G45="G45", G40="G40", G40IPA="G40+IPA")
+
+	paths = [Path(path) for path in "$^".split(" ")]
+	dfs = [pd.read_csv(path, dtype=str).assign(slurry=SLURRIES[path.stem]) for path in paths]
+	pd.concat(dfs).to_csv("$@", index=False)
+	'
+
+examples/v1/process_variables.csv: $(foreach dataset,$(DATASETS_v1),datasets/v1/process_variables/mean_profiles/$(dataset).csv)
+	mkdir -p $(@D)
+	python3 -c '
+	from pathlib import Path
+	import pandas as pd
+
+	paths = [Path(path) for path in "$^".split(" ")]
+	dfs = [pd.read_csv(path, dtype=str).assign(dataset=path.stem) for path in paths]
+	pd.concat(dfs).to_csv("$@", index=False)
+	'
+
 examples/v1/profile.ipynb: examples/v1/profiles/all_profiles/dataset1/001.h5 examples/v1/profiles/mean_profiles/dataset1/001.h5 .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
 
 examples/v1/contact_angle.ipynb: datasets/v1/contact_angles/G50.csv datasets/v1/contact_angles/G45.csv datasets/v1/contact_angles/G40.csv datasets/v1/contact_angles/G40IPA.csv .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
 
-examples/v1/viscosity.ipynb: $(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosities/$(slurry).csv) $(foreach dataset,dataset1 dataset2 dataset3 dataset4 dataset5,datasets/v1/process_variables/mean_profiles/$(dataset).csv) .FORCE
+examples/v1/viscosity.ipynb: examples/v1/viscosities.csv examples/v1/process_variables.csv .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
 
-examples/v1/dimless.ipynb: datasets/v1/process_variables/mean_profiles/dataset1.csv datasets/v1/datapackage.json .FORCE
+examples/v1/dimless.ipynb: examples/v1/process_variables.csv datasets/v1/datapackage.json .FORCE
 	jupyter nbconvert --to notebook --execute --inplace $@
 
 # Tests
@@ -129,14 +153,14 @@ test/v1/contact_angle.ipynb: datasets/v1/contact_angles/G50.csv datasets/v1/cont
 	papermill examples/v1/contact_angle.ipynb - -p out_path $$outfile > /dev/null 2>&1
 	[ -f "$$outfile" ]
 
-test/v1/viscosity.ipynb: $(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosities/$(slurry).csv) $(foreach dataset,dataset1 dataset2 dataset3 dataset4 dataset5,datasets/v1/process_variables/mean_profiles/$(dataset).csv)
+test/v1/viscosity.ipynb: examples/v1/viscosities.csv examples/v1/process_variables.csv
 	outfile=$$(mktemp)
 	trap 'rm -rf $$outfile' EXIT INT TERM
-	papermill examples/v1/viscosity.ipynb - -p out_path $$outfile > /dev/null 2>&1
+	papermill examples/v1/viscosity.ipynb - -p viscosity_path examples/v1/viscosities.csv -p pv_path examples/v1/process_variables.csv -p out_path $$outfile > /dev/null 2>&1
 	[ -f "$$outfile" ]
 
-test/v1/dimless.ipynb: datasets/v1/process_variables/mean_profiles/dataset1.csv datasets/v1/datapackage.json
+test/v1/dimless.ipynb: examples/v1/process_variables.csv datasets/v1/datapackage.json
 	outfile=$$(mktemp)
 	trap 'rm -rf $$outfile' EXIT INT TERM
-	papermill examples/v1/dimless.ipynb - -p pv_path datasets/v1/process_variables/mean_profiles/dataset1.csv -p metadata_path datasets/v1/datapackage.json -p out_path $$outfile > /dev/null 2>&1
+	papermill examples/v1/dimless.ipynb - -p pv_path examples/v1/process_variables.csv -p metadata_path datasets/v1/datapackage.json -p out_path $$outfile > /dev/null 2>&1
 	[ -f "$$outfile" ]
