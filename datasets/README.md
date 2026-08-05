@@ -19,7 +19,7 @@ Profiles are stored as `dataset*.tar.gz` archives.
 To unpack all profiles, run:
 
 ```sh
-for directory in v1/profiles v1/mean_profiles; do
+for directory in v1/profiles/all_profiles v1/profiles/mean_profiles; do
     for archive in "$directory"/*.tar.gz; do
         [ -e "$archive" ] || continue
         dataset=${archive##*/}

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.0.0rc4] - UNRELEASED
+
+### Changed
+
+- Profile data are now in `profiles/all_profiles` and `profiles/mean_profiles`.
+- Process variable data are now in `process_variables/all_profiles` and `process_variables/mean_profiles`.
+
 ## [v1.0.0rc3.post0] - 2026-08-01
 
 ### Fixed
