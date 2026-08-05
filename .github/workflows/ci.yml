@@ -76,7 +76,7 @@ jobs:
             datasets/v1/profiles/mean_profiles/dataset1.tar.gz
             datasets/v1/contact_angles/*
             datasets/v1/viscosities/*
-            datasets/v1/process_variables/*
+            datasets/v1/process_variables/mean_profiles/*
           retention-days: 1
 
   find-notebooks:
