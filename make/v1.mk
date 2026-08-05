@@ -5,11 +5,12 @@ PROFILES_v1 = $(if $(filter 1,$(HEAVYEDGE_TEST_MODE)),001,$(shell ls _data/v1/pr
 SLURRIES_v1 := G50 G45 G40 G40IPA
 
 dataset-v1: \
-$(foreach dataset,$(DATASETS_v1),datasets/v1/process_variables/$(dataset).csv) \
+$(foreach dataset,$(DATASETS_v1),datasets/v1/profiles/all_profiles/$(dataset).tar.gz) \
+$(foreach dataset,$(DATASETS_v1),datasets/v1/profiles/mean_profiles/$(dataset).tar.gz) \
 $(foreach slurry,$(SLURRIES_v1),datasets/v1/contact_angles/$(slurry).csv) \
 $(foreach slurry,$(SLURRIES_v1),datasets/v1/viscosities/$(slurry).csv) \
-$(foreach dataset,$(DATASETS_v1),datasets/v1/profiles/all_profiles/$(dataset).tar.gz) \
-$(foreach dataset,$(DATASETS_v1),datasets/v1/profiles/mean_profiles/$(dataset).tar.gz)
+$(foreach dataset,$(DATASETS_v1),datasets/v1/process_variables/all_profiles/$(dataset).csv) \
+$(foreach dataset,$(DATASETS_v1),datasets/v1/process_variables/mean_profiles/$(dataset).csv)
 
 examples-v1: $(wildcard examples/v1/*.ipynb)
 
@@ -26,12 +27,14 @@ _temp/v1/profiles/all_profiles/%.h5: _data/v1/profiles/%.tar.gz config/v1/prep.y
 	heavyedge prep --type=csvs --name=$* $$rawdata/$$subdir/HEAD_A --config $(lastword $^) -o $@
 	echo 'Created $@'
 
-define PROFILES_TARGZ_v1
-datasets/v1/profiles/all_profiles/$(1).tar.gz: $(foreach profile,$(call PROFILES_v1,$(1)),_temp/v1/profiles/all_profiles/$(1)/$(profile).h5)
-	mkdir -p $$(@D)
-	tar -czf $$@ -C _temp/v1/profiles/all_profiles/$(1) $$(notdir $$^)
+define ALLPROFILES_v1
+_temp/v1/profiles/all_profiles/$(1): $(foreach profile,$(call PROFILES_v1,$(1)),_temp/v1/profiles/all_profiles/$(1)/$(profile).h5)
 endef
-$(foreach dataset,$(DATASETS_v1),$(eval $(call PROFILES_TARGZ_v1,$(dataset))))
+$(foreach dataset,$(DATASETS_v1),$(eval $(call ALLPROFILES_v1,$(dataset))))
+
+datasets/v1/profiles/all_profiles/%.tar.gz: _temp/v1/profiles/all_profiles/%
+	mkdir -p $(@D)
+	tar -czf $@ -C $< .
 
 _temp/v1/profiles/mean_profiles/%.h5: _temp/v1/profiles/all_profiles/%.h5 config/v1/mean.yml
 	@mkdir -p $(@D)
@@ -41,16 +44,14 @@ _temp/v1/profiles/mean_profiles/%.h5: _temp/v1/profiles/all_profiles/%.h5 config
 	heavyedge mean $$filled --config $(lastword $^) -o $@
 	echo 'Created $@'
 
-define MEANPROFILES_TARGZ_v1
-datasets/v1/profiles/mean_profiles/$(1).tar.gz: $(foreach profile,$(call PROFILES_v1,$(1)),_temp/v1/profiles/mean_profiles/$(1)/$(profile).h5)
-	@mkdir -p $$(@D)
-	tar -czf $$@ -C _temp/v1/profiles/mean_profiles/$(1) $$(notdir $$^)
+define MEANPROFILES_v1
+_temp/v1/profiles/mean_profiles/$(1): $(foreach profile,$(call PROFILES_v1,$(1)),_temp/v1/profiles/mean_profiles/$(1)/$(profile).h5)
 endef
-$(foreach dataset,$(DATASETS_v1),$(eval $(call MEANPROFILES_TARGZ_v1,$(dataset))))
+$(foreach dataset,$(DATASETS_v1),$(eval $(call MEANPROFILES_v1,$(dataset))))
 
-datasets/v1/process_variables/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _temp/v1/Viscosities.csv _data/v1/SlurryProperties _temp/v1/ContactAngles.yml datasets/v1/datapackage.json
+datasets/v1/profiles/mean_profiles/%.tar.gz: _temp/v1/profiles/mean_profiles/%
 	mkdir -p $(@D)
-	python3 $^ --dataset=$* -o $@
+	tar -czf $@ -C $< .
 
 datasets/v1/viscosities/G50.csv: scripts/v1/write-viscosity.py _data/v1/SlurryViscosities/Ascending/high_viscosity.csv _data/v1/SlurryViscosities/Descending/high_viscosity.csv
 	mkdir -p $(@D)
@@ -72,13 +73,25 @@ datasets/v1/contact_angles/%.csv: scripts/v1/read-ca.py _data/v1/ca/%
 	mkdir -p $(@D)
 	python3 $^ -o $@
 
-_temp/v1/Viscosities.csv: datasets/v1/viscosities/G50.csv datasets/v1/viscosities/G45.csv datasets/v1/viscosities/G40.csv datasets/v1/viscosities/G40IPA.csv
+_temp/v1/viscosities.csv: datasets/v1/viscosities/G50.csv datasets/v1/viscosities/G45.csv datasets/v1/viscosities/G40.csv datasets/v1/viscosities/G40IPA.csv
 	mkdir -p $(@D)
 	python3 -c "from pathlib import Path; import pandas as pd; paths = '$^'.split(' '); slurries = [Path(path).stem for path in paths]; dfs = [pd.read_csv(path).assign(slurry=slurry) for path, slurry in zip(paths, slurries)]; pd.concat(dfs, keys=slurries, names=['slurry']).to_csv('$@', index=False)"
 
 _temp/v1/ContactAngles.yml: scripts/v1/write-ca.py datasets/v1/contact_angles/G50.csv datasets/v1/contact_angles/G45.csv datasets/v1/contact_angles/G40.csv datasets/v1/contact_angles/G40IPA.csv
 	mkdir -p $(@D)
 	python3 $^ --slurries HighViscosity Standard LowViscosity LowSurfaceTension -o $@
+
+_temp/v1/process_variables/%.csv: scripts/v1/write-pv.py _data/v1/profiles/%/index.csv _temp/v1/viscosities.csv _data/v1/SlurryProperties _temp/v1/ContactAngles.yml datasets/v1/datapackage.json
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
+datasets/v1/process_variables/all_profiles/%.csv: scripts/v1/expand-pv.py _temp/v1/process_variables/%.csv _temp/v1/profiles/all_profiles/%
+	mkdir -p $(@D)
+	python3 $^ -o $@
+
+datasets/v1/process_variables/mean_profiles/%.csv: scripts/v1/expand-pv.py _temp/v1/process_variables/%.csv _temp/v1/profiles/mean_profiles/%
+	mkdir -p $(@D)
+	python3 $^ -o $@
 
 # Examples
 
