@@ -128,14 +128,14 @@ jobs:
           name: datasets
           path: datasets/v1
 
-      - run: make ${{ matrix.notebook }}
+      - run: HEAVYEDGE_TEST_MODE=1 make ${{ matrix.notebook }}
 
       - name: run papermill test
         env:
           NOTEBOOK: ${{ matrix.notebook }}
         run: |
           test_notebook="test/${NOTEBOOK#*/}"
-          make "$test_notebook"
+          HEAVYEDGE_TEST_MODE=1 make "$test_notebook"
 
   image-dev:
 
