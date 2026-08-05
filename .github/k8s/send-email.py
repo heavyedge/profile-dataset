@@ -17,6 +17,7 @@ class BuildStatus(IntEnum):
     SETUP_FAILED = 1
     BUILD_FAILED = 2
     DOC_BUILD_FAILED = 3
+    TEST_FAILED = 4
 
 
 class DeployStatus(IntFlag):
@@ -134,8 +135,6 @@ def build_message(
 
     body_lines.append(f"BUILD_MODE: {env('BUILD_MODE')}")
     body_lines.append(f"DEPLOY_MODE: {env('DEPLOY_MODE')}")
-    body_lines.append(f"DOC_BUILD_MODE: {env('DOC_BUILD_MODE')}")
-    body_lines.append(f"DOC_DEPLOY_MODE: {env('DOC_DEPLOY_MODE')}")
 
     msg = EmailMessage()
     msg["To"] = env("SMTP_NOTIFY_RECIPIENT")
