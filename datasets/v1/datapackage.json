@@ -19,14 +19,6 @@
       "mediatype": "application/gzip"
     },
     {
-      "name": "Mean profiles",
-      "path": "mean_profiles/",
-      "title": "Mean slot-die coating edge profiles",
-      "description": "Mean profiles of each entry in 'profiles'. Each mean profile is stored in a separate HDF5 file.",
-      "format": "tar.gz",
-      "mediatype": "application/gzip"
-    },
-    {
       "name": "Contact angles",
       "type": "table",
       "path": "contact_angles/",

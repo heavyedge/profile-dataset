@@ -39,7 +39,7 @@ jobs:
         run: |
           isort --check .
 
-  test:
+  build:
 
     runs-on: ubuntu-latest
 
@@ -59,19 +59,24 @@ jobs:
           PROFILES_V1_GDRIVE: ${{ secrets.PROFILES_V1_GDRIVE }}
           CA_V1_GDRIVE: ${{ secrets.CA_V1_GDRIVE }}
 
-      - name: build dataset and examples
-        run: HEAVYEDGE_TEST_MODE=1 make
+      - name: build datasets
+        run: HEAVYEDGE_TEST_MODE=1 make datasets
 
       - uses: actions/upload-artifact@v4
         with:
-          name: raw-dataset
+          name: raw-data
           path: _data/v1/profiles/dataset1/001*
           retention-days: 1
 
       - uses: actions/upload-artifact@v4
         with:
-          name: preprocessed-dataset
-          path: datasets/v1/profiles/dataset1/001*
+          name: datasets
+          path: |
+            datasets/v1/profiles/all_profiles/dataset1.tar.gz
+            datasets/v1/profiles/mean_profiles/dataset1.tar.gz
+            datasets/v1/contact_angles/*
+            datasets/v1/viscosities/*
+            datasets/v1/process_variables/mean_profiles/*
           retention-days: 1
 
   find-notebooks:
@@ -94,7 +99,9 @@ jobs:
 
   build-notebooks:
 
-      needs: find-notebooks
+      needs:
+        - find-notebooks
+        - build
 
       runs-on: ubuntu-latest
 
@@ -114,23 +121,25 @@ jobs:
           python-version: "3.12"
 
       - name: set up the environment
-        run: ./setup.sh
-        env:
-          PROFILES_V1_GDRIVE: ${{ secrets.PROFILES_V1_GDRIVE }}
-          CA_V1_GDRIVE: ${{ secrets.CA_V1_GDRIVE }}
+        run: pip install -r requirements.txt -r examples/requirements.txt
 
-      - run: make ${{ matrix.notebook }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: datasets
+          path: datasets/v1
+
+      - run: HEAVYEDGE_TEST_MODE=1 make ${{ matrix.notebook }}
 
       - name: run papermill test
         env:
           NOTEBOOK: ${{ matrix.notebook }}
         run: |
           test_notebook="test/${NOTEBOOK#*/}"
-          make "$test_notebook"
+          HEAVYEDGE_TEST_MODE=1 make "$test_notebook"
 
   image-dev:
 
-    needs: test
+    needs: build
 
     runs-on: ubuntu-latest
 
@@ -140,13 +149,13 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: raw-dataset
+          name: raw-data
           path: _data/v1/profiles/dataset1
 
       - uses: actions/download-artifact@v4
         with:
-          name: preprocessed-dataset
-          path: datasets/v1/profiles/dataset1
+          name: datasets
+          path: datasets/v1
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -164,11 +173,11 @@ jobs:
 
       - name: Test Docker image
         run: |
-            docker run --rm heavyedge-profile-dataset:dev-ci sh -c '[ -d "_data" ] && [ -d "datasets/v1" ]'
+            docker run --rm heavyedge-profile-dataset:dev-ci sh -c '[ -d "_data" ] && [ -d "datasets" ]'
 
   image-base:
 
-    needs: test
+    needs: build
 
     runs-on: ubuntu-latest
 
@@ -178,13 +187,13 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: raw-dataset
+          name: raw-data
           path: _data/v1/profiles/dataset1
 
       - uses: actions/download-artifact@v4
         with:
-          name: preprocessed-dataset
-          path: datasets/v1/profiles/dataset1
+          name: datasets
+          path: datasets/v1
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -202,4 +211,4 @@ jobs:
 
       - name: Test Docker image
         run: |
-            docker run --rm heavyedge-profile-dataset:ci sh -c '[ ! -d "_data" ] && [ -d "datasets/v1" ]'
+            docker run --rm heavyedge-profile-dataset:ci sh -c '[ ! -d "_data" ] && [ -d "datasets" ]'

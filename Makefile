@@ -14,7 +14,8 @@ examples: examples-v1
 tests: tests-v1
 
 clean:
-	rm -rf _temp
+	shopt -s globstar nullglob
+	rm -rf _temp examples/**/*.h5 examples/**/*.csv
 	for dataset_dir in datasets/v*; do
 		[ -d "$$dataset_dir" ] || continue
 		find "$$dataset_dir" -mindepth 1 -maxdepth 1 ! -name datapackage.json -exec rm -rf -- {} +

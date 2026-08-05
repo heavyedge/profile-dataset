@@ -32,7 +32,6 @@ parser.add_argument(
     type=pathlib.Path,
     help="Data Package descriptor containing the pv field units",
 )
-parser.add_argument("--dataset", help="Dataset name")
 parser.add_argument("-o", "--out", type=pathlib.Path, help="Output csv file")
 args = parser.parse_args()
 
@@ -65,8 +64,6 @@ field_units = load_field_units(args.datapackage)
 # LOAD DATA
 
 pv = load_pv(args.index)
-if args.dataset is not None:
-    pv["Name"] = pv["Name"]
 
 VISCOSITY_NAMES = dict(
     G50="HighViscosity",
