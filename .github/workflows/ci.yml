@@ -123,6 +123,11 @@ jobs:
       - name: set up the environment
         run: pip install -r requirements.txt -r examples/requirements.txt
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: datasets
+          path: datasets/v1
+
       - run: make ${{ matrix.notebook }}
 
       - name: run papermill test
