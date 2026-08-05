@@ -39,7 +39,7 @@ jobs:
         run: |
           isort --check .
 
-  test:
+  build:
 
     runs-on: ubuntu-latest
 
@@ -59,8 +59,8 @@ jobs:
           PROFILES_V1_GDRIVE: ${{ secrets.PROFILES_V1_GDRIVE }}
           CA_V1_GDRIVE: ${{ secrets.CA_V1_GDRIVE }}
 
-      - name: build dataset and examples
-        run: HEAVYEDGE_TEST_MODE=1 make
+      - name: build datasets
+        run: HEAVYEDGE_TEST_MODE=1 make datasets
 
       - uses: actions/upload-artifact@v4
         with:
@@ -101,7 +101,7 @@ jobs:
 
       needs:
         - find-notebooks
-        - test
+        - build
 
       runs-on: ubuntu-latest
 
@@ -139,7 +139,7 @@ jobs:
 
   image-dev:
 
-    needs: test
+    needs: build
 
     runs-on: ubuntu-latest
 
@@ -177,7 +177,7 @@ jobs:
 
   image-base:
 
-    needs: test
+    needs: build
 
     runs-on: ubuntu-latest
 
