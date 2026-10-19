@@ -11,7 +11,7 @@ mkdir -p ./_data/v1/profiles ./_data/v1/ca
 requirements_pid=$!
 
 (
-  gdown --fuzzy "$PROFILES_V1_GDRIVE" -O ./_data/v1/profiles.tar
+  gdown --fuzzy "$RAW_V1_GDRIVE" -O ./_data/v1/profiles.tar
   tar -xf _data/v1/profiles.tar -C _data/v1/profiles
   mv _data/v1/profiles/SlurryProperties _data/v1/profiles/SlurryViscosities _data/v1/
 ) &
