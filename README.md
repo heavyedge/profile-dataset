@@ -33,7 +33,7 @@ pip install -r requirements.txt
 Run the following commands to download the raw dataset in the `_data` directory.
 
 ```sh
-export PROFILES_V1_GDRIVE="..."
+export RAW_V1_GDRIVE="..."
 export CA_V1_GDRIVE="..."
 ./setup.sh
 ```
